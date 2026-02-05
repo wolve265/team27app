@@ -23,7 +23,7 @@ def unauthenticated_menu() -> None:
 def menu() -> None:
     """Determine if a user is logged in or not, then show the correct navigation menu."""
     with st.sidebar:
-        st.page_link("app.py", label="Home", icon=":material/home:")
+        st.page_link("streamlit_app.py", label="Home", icon=":material/home:")
 
         if not st.user.is_logged_in:
             unauthenticated_menu()
@@ -37,5 +37,5 @@ def menu_with_redirect() -> None:
     Otherwise continue to render the navigation menu.
     """
     if not st.user.is_logged_in:
-        st.switch_page("app.py")
+        st.switch_page("streamlit_app.py")
     menu()
