@@ -1,14 +1,16 @@
 import streamlit as st
 
 from menu import menu
+from utils.db.users import get_logged_user
 
-st.sidebar.title("Team 27 App", text_alignment="center")
+get_logged_user()
+
+# Sidebar and menu
 menu()
 
-
+# Main page content
 st.header("Team 27 Mielec", text_alignment="center")
 st.image("images/t27_logo_white_long.png")
-
 st.markdown("""
 AZP Team 27 Mielec powstał 27 lipca 2010 roku.
 
