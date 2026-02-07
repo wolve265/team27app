@@ -1,9 +1,9 @@
 import streamlit as st
 
 from menu import menu
-from utils.db.users import get_logged_user
+from utils.db.users import get_db_user
 
-get_logged_user()
+get_db_user()
 
 # Sidebar and menu
 menu()
