@@ -12,22 +12,20 @@ from utils.db.users import (
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
+users: list[User] = get_all_users()
+
 st.header("Manage Users")
 
-def refresh_users() -> None:
-    st.session_state.users = get_all_users()
-
-if "users" not in st.session_state:
-    refresh_users()
-
-users: list[User] = st.session_state.users
+if "notification" in st.session_state:
+    notification = st.session_state.pop("notification")
+    icon = notification["icon"]
+    st.toast(notification["msg"], icon=icon)
 
 with st.expander("All users", expanded=True):
-    st.button("Refresh users", on_click=refresh_users, help="Use this button after every operation to see the updated users list.")
+    st.button("Refresh users", help="Use this button after every operation to see the updated users list.")
     st.table(users)
 
-
-with st.form("Add user", clear_on_submit=True):
+with st.form("add_user_form"):
     st.header("Add user", text_alignment="center")
     email = st.text_input("Email")
     role = st.selectbox("Role", UserRole.list_all())
@@ -40,9 +38,11 @@ with st.form("Add user", clear_on_submit=True):
             try:
                 add_user(user)
             except Exception as e:
-                st.error(str(e))
+                st.session_state.notification = {"icon": "❌", "msg": str(e)}
             else:
-                st.success(f"User '{email}' with role '{role}' added!")
+                st.session_state.notification = {"icon": "✅", "msg": f"User '{email}' with role '{role}' added!"}
+            finally:
+                st.rerun()
 
 with st.container(border=True):
     st.header("Edit user role", text_alignment="center")
@@ -59,9 +59,11 @@ with st.container(border=True):
         try:
             edit_user_role(email, UserRole(role))
         except Exception as e:
-            st.error(str(e))
+            st.session_state.notification = {"icon": "❌", "msg": str(e)}
         else:
-            st.success(f"User '{email}' role changed to '{role}'!")
+            st.session_state.notification = {"icon": "✅", "msg": f"User '{email}' role changed to '{role}'!"}
+        finally:
+            st.rerun()
 
 with st.container(border=True):
     st.header("Delete user", text_alignment="center")
@@ -75,6 +77,8 @@ with st.container(border=True):
         try:
             delete_user(email)
         except Exception as e:
-            st.error(str(e))
+            st.session_state.notification = {"icon": "❌", "msg": str(e)}
         else:
-            st.success(f"User '{email}' deleted!")
+            st.session_state.notification = {"icon": "✅", "msg": f"User '{email}' deleted!"}
+        finally:
+            st.rerun()
