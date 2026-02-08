@@ -4,5 +4,5 @@ from menu import menu_with_redirect
 
 menu_with_redirect()
 
-st.header("Log in")
-st.button("Log in", on_click=st.login)
+st.header("Zaloguj się")
+st.button("Zaloguj", on_click=st.login)
