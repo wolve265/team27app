@@ -14,14 +14,16 @@ menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
 users: list[User] = get_all_users()
 for u in users:
-    u.pop("_id")  # type: ignore
-
-st.header("Zarządzanie użytkownikami")
+    keys_to_pop = [key for key in u.keys() if key.startswith("_")]
+    for key in keys_to_pop:
+        u.pop(key)  # type: ignore
 
 if "notification" in st.session_state:
     notification = st.session_state.pop("notification")
     icon = notification["icon"]
     st.toast(notification["msg"], icon=icon)
+
+st.header("Zarządzanie użytkownikami")
 
 with st.expander("Użytkownicy", expanded=True):
     st.button("Odśwież")

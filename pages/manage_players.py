@@ -8,14 +8,16 @@ menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
 players: list[Player] = get_all_players()
 for p in players:
-    p.pop("_id")  # type: ignore
-
-st.header("Zarządzanie zawodnikami")
+    keys_to_pop = [key for key in p.keys() if key.startswith("_")]
+    for key in keys_to_pop:
+        p.pop(key)  # type: ignore
 
 if "notification" in st.session_state:
     notification = st.session_state.pop("notification")
     icon = notification["icon"]
     st.toast(notification["msg"], icon=icon)
+
+st.header("Zarządzanie zawodnikami")
 
 with st.expander("Zawodnicy", expanded=True):
     st.button("Odśwież")

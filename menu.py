@@ -42,7 +42,7 @@ def menu() -> None:
                     icon=":material/sports_soccer:",
                 )
                 st.page_link(
-                    "pages/notifications.py",
+                    "pages/manage_notifications.py",
                     label="Powiadomienia",
                     icon=":material/notifications:",
                 )
