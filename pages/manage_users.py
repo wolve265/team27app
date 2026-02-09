@@ -13,6 +13,8 @@ from utils.db.users import (
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
 users: list[User] = get_all_users()
+for u in users:
+    u.pop("_id")  # type: ignore
 
 st.header("Zarządzanie użytkownikami")
 
