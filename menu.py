@@ -41,6 +41,11 @@ def menu() -> None:
                     label="Zawodnicy",
                     icon=":material/sports_soccer:",
                 )
+                st.page_link(
+                    "pages/notifications.py",
+                    label="Powiadomienia",
+                    icon=":material/notifications:",
+                )
 
         # Socials
         st.markdown("---")
