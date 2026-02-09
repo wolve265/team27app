@@ -46,6 +46,7 @@ def add_player(player: Player) -> None:
         raise RuntimeError(f"Player '{player['name']} {player['surname']}' already exists.")
     collection.insert_one(player)
 
+
 def edit_player(player: Player) -> None:
     """Update a player in the collection."""
     collection: Collection[Player] = client.t27app.players
@@ -54,3 +55,9 @@ def edit_player(player: Player) -> None:
         {"$set": player},
         upsert=True,
     )
+
+
+def delete_player(player: Player) -> None:
+    """Delete a player from the collection."""
+    collection: Collection[Player] = client.t27app.players
+    collection.delete_one({"name": player["name"], "surname": player["surname"]})
