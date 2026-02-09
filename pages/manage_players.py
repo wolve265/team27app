@@ -27,16 +27,24 @@ with st.form("add_player_form"):
 
 with st.container(border=True):
     st.header("Edytuj zawodnika", text_alignment="center")
-    fullname = st.selectbox("Wybierz zawodnika", key="edit_player", options=[f"{p["name"]} {p["surname"]}" for p in players])
+    fullname = st.selectbox(
+        "Wybierz zawodnika",
+        key="edit_player",
+        options=[f"{p['name']} {p['surname']}" for p in players],
+    )
     if players:
-        player = next(p for p in players if f"{p["name"]} {p["surname"]}" == fullname)
+        player = next(p for p in players if f"{p['name']} {p['surname']}" == fullname)
     st.warning("Ta funkcjonalność jeszcze nie jest dostępna!")
     submit = st.button("Zapisz", disabled=True)
 
 with st.container(border=True):
     st.header("Usuń zawodnika", text_alignment="center")
-    fullname = st.selectbox("Wybierz zawodnika", key="delete_player", options=[f"{p["name"]} {p["surname"]}" for p in players])
+    fullname = st.selectbox(
+        "Wybierz zawodnika",
+        key="delete_player",
+        options=[f"{p['name']} {p['surname']}" for p in players],
+    )
     if players:
-        player = next(p for p in players if f"{p["name"]} {p["surname"]}" == fullname)
+        player = next(p for p in players if f"{p['name']} {p['surname']}" == fullname)
     st.warning("Ta funkcjonalność jeszcze nie jest dostępna!")
     submit = st.button("Usuń", disabled=True)

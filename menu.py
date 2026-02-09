@@ -6,7 +6,6 @@ from utils.db.users import User, UserRole, get_db_user
 social_media_links = [
     "https://www.facebook.com/groups/1501886206715210",
     "https://www.instagram.com/__team27__/",
-
 ]
 
 
@@ -32,8 +31,16 @@ def menu() -> None:
         db_user: User = st.session_state.db_user
         if db_user["role"] in {UserRole.ADMIN, UserRole.SUPERADMIN}:
             with st.expander("Admin menu", expanded=True, icon=":material/admin_panel_settings:"):
-                st.page_link("pages/manage_users.py", label="Użytkownicy", icon=":material/supervised_user_circle:")
-                st.page_link("pages/manage_players.py", label="Zawodnicy", icon=":material/sports_soccer:")
+                st.page_link(
+                    "pages/manage_users.py",
+                    label="Użytkownicy",
+                    icon=":material/supervised_user_circle:",
+                )
+                st.page_link(
+                    "pages/manage_players.py",
+                    label="Zawodnicy",
+                    icon=":material/sports_soccer:",
+                )
 
         # Socials
         st.markdown("---")

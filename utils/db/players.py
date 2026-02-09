@@ -6,6 +6,7 @@ from utils.db.client import get_client
 
 client = get_client()
 
+
 class Player(TypedDict):
     number: int
     name: str

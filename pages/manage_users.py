@@ -40,20 +40,30 @@ with st.form("add_user_form"):
             except Exception as e:
                 st.session_state.notification = {"icon": "❌", "msg": str(e)}
             else:
-                st.session_state.notification = {"icon": "✅", "msg": f"Użytkownik '{email}' o roli '{role}' dodany!"}
+                st.session_state.notification = {
+                    "icon": "✅",
+                    "msg": f"Użytkownik '{email}' o roli '{role}' dodany!",
+                }
             finally:
                 st.rerun()
 
 with st.container(border=True):
     st.header("Edytuj rolę użytkownika", text_alignment="center")
-    email = st.selectbox("Wybierz użytkownika", key="edit_user", options=[u["email"] for u in users])
+    email = st.selectbox(
+        "Wybierz użytkownika", key="edit_user", options=[u["email"] for u in users]
+    )
     user = next(u for u in users if u["email"] == email)
     is_superadmin = user["role"] == UserRole.SUPERADMIN
     if is_superadmin:
         st.warning(f"Nie możesz edytować użytkownika o roli '{UserRole.SUPERADMIN}'!")
     else:
         user_role_index = UserRole.list_all().index(user["role"])
-        role = st.selectbox("Rola", options=UserRole.list_all(), index=user_role_index, disabled=is_superadmin)
+        role = st.selectbox(
+            "Rola",
+            options=UserRole.list_all(),
+            index=user_role_index,
+            disabled=is_superadmin,
+        )
     submit = st.button("Edytuj rolę", disabled=is_superadmin)
     if submit:
         try:
@@ -61,13 +71,18 @@ with st.container(border=True):
         except Exception as e:
             st.session_state.notification = {"icon": "❌", "msg": str(e)}
         else:
-            st.session_state.notification = {"icon": "✅", "msg": f"Rola użytkownika '{email}' zmieniona na '{role}'!"}
+            st.session_state.notification = {
+                "icon": "✅",
+                "msg": f"Rola użytkownika '{email}' zmieniona na '{role}'!",
+            }
         finally:
             st.rerun()
 
 with st.container(border=True):
     st.header("Usuń użytkownika", text_alignment="center")
-    email = st.selectbox("Wybierz użytkownika", key="delete_user", options=[u["email"] for u in users])
+    email = st.selectbox(
+        "Wybierz użytkownika", key="delete_user", options=[u["email"] for u in users]
+    )
     user = next(u for u in users if u["email"] == email)
     is_superadmin = user["role"] == UserRole.SUPERADMIN
     if is_superadmin:
@@ -79,6 +94,9 @@ with st.container(border=True):
         except Exception as e:
             st.session_state.notification = {"icon": "❌", "msg": str(e)}
         else:
-            st.session_state.notification = {"icon": "✅", "msg": f"User '{email}' deleted!"}
+            st.session_state.notification = {
+                "icon": "✅",
+                "msg": f"User '{email}' deleted!",
+            }
         finally:
             st.rerun()
