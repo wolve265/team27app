@@ -7,5 +7,6 @@ requires-python = ">=3.13"
 dependencies = [
     "authlib>=1.6.7",
     "pymongo>=4.16.0",
+    "st-social-media-links>=0.1.5",
     "streamlit>=1.54.0",
 ]

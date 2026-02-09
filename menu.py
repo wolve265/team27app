@@ -1,6 +1,13 @@
 import streamlit as st
+from st_social_media_links import SocialMediaIcons
 
 from utils.db.users import User, UserRole, get_db_user
+
+social_media_links = [
+    "https://www.facebook.com/groups/1501886206715210",
+    "https://www.instagram.com/__team27__/",
+
+]
 
 
 def menu() -> None:
@@ -27,6 +34,11 @@ def menu() -> None:
             with st.expander("Admin menu", expanded=True, icon=":material/admin_panel_settings:"):
                 st.page_link("pages/manage_users.py", label="Użytkownicy", icon=":material/supervised_user_circle:")
                 st.page_link("pages/manage_players.py", label="Zawodnicy", icon=":material/sports_soccer:")
+
+        # Socials
+        st.markdown("---")
+        SocialMediaIcons(social_media_links).render()
+
 
 def menu_with_redirect(roles: list[str] = UserRole.list_all_with_superadmin()) -> None:
     """Redirect users to the main page if not correct role.
