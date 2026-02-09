@@ -45,3 +45,12 @@ def add_player(player: Player) -> None:
     if any(all(player[key] == p[key] for key in ("name", "surname")) for p in players):
         raise RuntimeError(f"Player '{player['name']} {player['surname']}' already exists.")
     collection.insert_one(player)
+
+def edit_player(player: Player) -> None:
+    """Update a player in the collection."""
+    collection: Collection[Player] = client.t27app.players
+    collection.update_one(
+        {"name": player["name"], "surname": player["surname"]},
+        {"$set": player},
+        upsert=True,
+    )
