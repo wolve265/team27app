@@ -21,7 +21,8 @@ st.header("Zarządzanie zawodnikami")
 
 with st.expander("Zawodnicy", expanded=True):
     st.button("Odśwież")
-    st.table(players)
+    players_to_show = [{"Numer": p["team27_number"], "Imię": p["name"], "Nazwisko": p["surname"]} for p in players]
+    st.table(sorted(players_to_show, key=lambda p: p["Nazwisko"]))
 
 
 with st.form("add_player_form"):
@@ -100,7 +101,6 @@ with st.container(border=True):
         edited_player["team27_number"] = st.number_input(
             "Numer w Team 27",
             key="edit_team27_number",
-            value=player["team27_number"],
             min_value=0,
             max_value=99,
             step=1,
