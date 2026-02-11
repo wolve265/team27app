@@ -21,7 +21,14 @@ st.header("Zarządzanie zawodnikami")
 
 with st.expander("Zawodnicy", expanded=True):
     st.button("Odśwież")
-    players_to_show = [{"Numer": p["team27_number"], "Imię": p["name"], "Nazwisko": p["surname"]} for p in players]
+    players_to_show = [
+        {
+            "Numer": p["team27_number"],
+            "Imię": p["name"],
+            "Nazwisko": p["surname"],
+        }
+        for p in players
+    ]
     st.table(sorted(players_to_show, key=lambda p: p["Nazwisko"]))
 
 

@@ -25,7 +25,11 @@ def menu() -> None:
         # Main menu
         st.page_link("streamlit_app.py", label="Strona główna", icon=":material/home:")
 
-        # Notifications menu
+        # Indoor games 2025/2026
+        with st.expander("Hala", expanded=True, icon=":material/sports_soccer:"):
+            st.page_link(
+                "pages/games_25_26.py", label="2025/2026"
+            )
 
         # Admin menu
         db_user: User = st.session_state.db_user
@@ -39,7 +43,7 @@ def menu() -> None:
                 st.page_link(
                     "pages/manage_players.py",
                     label="Zawodnicy",
-                    icon=":material/sports_soccer:",
+                    icon=":material/directions_run:",
                 )
                 st.page_link(
                     "pages/manage_notifications.py",
