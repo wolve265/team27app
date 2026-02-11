@@ -27,9 +27,7 @@ def menu() -> None:
 
         # Indoor games 2025/2026
         with st.expander("Hala", expanded=True, icon=":material/sports_soccer:"):
-            st.page_link(
-                "pages/games_25_26.py", label="2025/2026"
-            )
+            st.page_link("pages/games_25_26.py", label="2025/2026")
 
         # Admin menu
         db_user: User = st.session_state.db_user
@@ -44,6 +42,11 @@ def menu() -> None:
                     "pages/manage_players.py",
                     label="Zawodnicy",
                     icon=":material/directions_run:",
+                )
+                st.page_link(
+                    "pages/manage_games.py",
+                    label="Gierki",
+                    icon=":material/sports_soccer:",
                 )
                 st.page_link(
                     "pages/manage_notifications.py",

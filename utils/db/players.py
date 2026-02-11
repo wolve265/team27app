@@ -34,7 +34,7 @@ def get_all_players() -> list[Player]:
     """Pull all players from the collection."""
     collection: Collection[Player] = client.t27app.players
     players = collection.find()
-    items_l = list(players)
+    items_l = sorted(players, key=lambda p: p["surname"])
     return items_l
 
 
