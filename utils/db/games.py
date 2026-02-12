@@ -65,7 +65,7 @@ def get_all_games(season: Season | None = None) -> list[Game]:
     repo = GamesRepository(client["t27app"])
     season_filter = {"season": season} if season else {}
     games = repo.find_by(season_filter)
-    items_l = sorted(games, key=lambda g: g.datetime)
+    items_l = sorted(games, key=lambda g: g.datetime, reverse=True)
     return items_l
 
 

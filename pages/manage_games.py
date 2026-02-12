@@ -36,7 +36,7 @@ with st.expander("Gierki", expanded=True):
     dumped_games = [g.model_dump() for g in games]
     games_df = pd.DataFrame(dumped_games)
     if not games_df.empty:
-        games_df = games_df.sort_values(by="date", ascending=False)
+        games_df = games_df.sort_values(by="datetime", ascending=False)
         games_df = games_df.drop(columns="id")
         st.dataframe(
             data=games_df,
