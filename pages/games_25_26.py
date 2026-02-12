@@ -34,6 +34,6 @@ for game in sorted(games, key=lambda g: g.datetime, reverse=True):
                 "Nazwisko": gp.surname,
                 "Zapłacono?": "✅" if is_game_paid_by_player(game, gp) else "❌",
             }
-            for gp in game.players
+            for gp in game.players_ids
         ]
         st.table(players_to_show)

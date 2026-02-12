@@ -11,11 +11,11 @@ from utils.db.client import get_client
 client = get_client()
 
 game_column_config_mapping = {
-    "_id": None,
+    "id": None,
     "datetime": None,
     "season": None,
     "cost": st.column_config.NumberColumn("Koszt", format="%d zł"),
-    "players": None,
+    "players_ids": None,
     "date": "Data",
     "players_count": "Liczba graczy",
 }
@@ -29,17 +29,13 @@ class Season(StrEnum):
         return [e for e in cls]
 
 
-class GamePlayer(BaseModel):
-    name: str
-    surname: str
-
 
 class Game(BaseModel):
     id: PydanticObjectId | None = None
     datetime: datetime.datetime
     season: Season
     cost: int
-    players: list[GamePlayer]
+    players_ids: list[str]
 
     @computed_field(repr=False)
     @property
@@ -49,7 +45,7 @@ class Game(BaseModel):
     @computed_field(repr=False)
     @property
     def players_count(self) -> int:
-        return len(self.players)
+        return len(self.players_ids)
 
 
 class GamesRepository(AbstractRepository[Game]):
@@ -94,8 +90,8 @@ def delete_game(game: Game) -> None:
     repo.delete(game)
 
 
-def is_player_in_game(game: Game, game_player: GamePlayer) -> bool:
-    for gp in game.players:
-        if gp.name == game_player.name and gp.surname == game_player.surname:
-            return True
-    return False
+# def is_player_in_game(game: Game, game_player: GamePlayer) -> bool:
+#     for gp in game.players_ids:
+#         if gp.name == game_player.name and gp.surname == game_player.surname:
+#             return True
+#     return False

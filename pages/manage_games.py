@@ -6,7 +6,6 @@ import streamlit as st
 from menu import menu_with_redirect
 from utils.db.games import (
     Game,
-    GamePlayer,
     Season,
     add_game,
     delete_game,
@@ -36,8 +35,8 @@ with st.expander("Gierki", expanded=True):
     st.button("Odśwież")
     dumped_games = [g.model_dump() for g in games]
     games_df = pd.DataFrame(dumped_games)
-    games_df = games_df.sort_values(by="date", ascending=False)
     if not games_df.empty:
+        games_df = games_df.sort_values(by="date", ascending=False)
         games_df = games_df.drop(columns="id")
         st.dataframe(
             data=games_df,
@@ -55,8 +54,8 @@ with st.form("add_game_form"):
     cost = st.number_input("Koszt (zł)", min_value=0, max_value=None)
     add_players = st.multiselect(
         "Uczestnicy",
-        options=[GamePlayer(**p.model_dump()) for p in players],
-        format_func=lambda gp: f"{gp.name} {gp.surname}",
+        options=players,
+        format_func=lambda p: p.fullname,
     )
     submit = st.form_submit_button("Dodaj")
     if submit:
@@ -64,7 +63,7 @@ with st.form("add_game_form"):
             datetime=dt,
             season=Season(season),
             cost=cost,
-            players=add_players,
+            players_ids=[str(p.id) for p in add_players],
         )
         try:
             add_game(game)
@@ -87,7 +86,7 @@ def update_edit_game_form() -> None:
     game: Game = st.session_state["edit_game"]
     st.session_state.edit_season = game.season
     st.session_state.edit_cost = game.cost
-    st.session_state.edit_players = game.players
+    st.session_state.edit_players = [p for p in players if str(p.id) in game.players_ids]
 
 
 with st.container(border=True):
@@ -112,13 +111,14 @@ with st.container(border=True):
             min_value=0,
             max_value=None,
         )
-        game_to_edit.players = st.multiselect(
+        edit_players = st.multiselect(
             "Uczestnicy",
             # key="edit_players",
-            options=[GamePlayer(**p.model_dump()) for p in players],
+            options=players,
             default=st.session_state.edit_players,
-            format_func=lambda gp: f"{gp.name} {gp.surname}",
+            format_func=lambda p: p.fullname,
         )
+        game_to_edit.players_ids=[str(p.id) for p in edit_players]
         submit = st.button("Zapisz")
         if submit:
             try:

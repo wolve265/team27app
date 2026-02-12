@@ -7,7 +7,7 @@ from utils.db.client import get_client
 client = get_client()
 
 player_column_config_mapping = {
-    "_id": None,
+    "id": None,
     "name": "Imię",
     "surname": "Nazwisko",
     "team27_number": st.column_config.NumberColumn("Numer"),
