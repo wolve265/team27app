@@ -5,6 +5,10 @@ from utils.db.players import get_all_players
 from utils.db.users import UserRole
 from utils.fb.api import Api
 from utils.fb.notifications import send_cash_notification
+from utils.pages import set_page
+
+PAGE_NAME = "Zarządzanie powiadomieniami"
+set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
@@ -17,7 +21,6 @@ if "notification" in st.session_state:
     icon = notification["icon"]
     st.toast(notification["msg"], icon=icon)
 
-st.header("Zarządzanie powiadomieniami")
 
 with st.container(border=True):
     st.warning("Ta funkcjonalność jest eksperymentalna")

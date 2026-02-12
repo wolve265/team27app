@@ -11,6 +11,10 @@ from utils.db.players import (
     player_column_config_mapping,
 )
 from utils.db.users import UserRole
+from utils.pages import set_page
+
+PAGE_NAME = "Zarządzanie zawodnikami"
+set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
@@ -22,20 +26,23 @@ if "notification" in st.session_state:
     icon = notification["icon"]
     st.toast(notification["msg"], icon=icon)
 
-st.header("Zarządzanie zawodnikami")
 
 with st.expander("Zawodnicy", expanded=True):
     st.button("Odśwież")
     players_df = pd.DataFrame(data=players)
     players_df = players_df.drop(columns="_id")
-    players_df = players_df.style.apply(
+    styled_df = players_df.style.apply(
         lambda x: ["color: cyan" if val > 0 else "" for val in x], subset=["team27_number"]
     )
     st.dataframe(
-        data=players_df,
+        data=styled_df,
         hide_index=True,
         column_config=player_column_config_mapping,
     )
+    left, mid, right = st.columns(3)
+    left.write("Liczba zawodników:")
+    mid.write(f"Team27 - {len(players_df.loc[players_df['team27_number'] > 0])}")
+    right.write(f"Ogółem - {len(players_df)}")
 
 
 with st.form("add_player_form"):

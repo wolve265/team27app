@@ -9,6 +9,10 @@ from utils.db.users import (
     edit_user_role,
     get_all_users,
 )
+from utils.pages import set_page
+
+PAGE_NAME = "Zarządzanie użytkownikami"
+set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
@@ -23,7 +27,6 @@ if "notification" in st.session_state:
     icon = notification["icon"]
     st.toast(notification["msg"], icon=icon)
 
-st.header("Zarządzanie użytkownikami")
 
 with st.expander("Użytkownicy", expanded=True):
     st.button("Odśwież")

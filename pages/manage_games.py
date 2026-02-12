@@ -6,6 +6,10 @@ from menu import menu_with_redirect
 from utils.db.games import Game, GamePlayer, Season, add_game, delete_game, edit_game, get_all_games
 from utils.db.players import get_all_players
 from utils.db.users import UserRole
+from utils.pages import set_page
+
+PAGE_NAME = "Zarządzanie gierkami"
+set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
@@ -17,7 +21,6 @@ if "notification" in st.session_state:
     icon = notification["icon"]
     st.toast(notification["msg"], icon=icon)
 
-st.header("Zarządzanie gierkami")
 
 with st.expander("Gierki", expanded=True):
     st.button("Odśwież")

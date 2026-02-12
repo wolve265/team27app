@@ -3,13 +3,16 @@ import streamlit as st
 from menu import menu_with_redirect
 from utils.db.games import Game, GamePlayer, Season, get_all_games, is_player_in_game
 from utils.db.players import get_all_players
+from utils.pages import set_page
+
+PAGE_NAME = "Hala 2025/2026"
+set_page(PAGE_NAME)
 
 menu_with_redirect()
 
 games = get_all_games(season=Season.INDOOR_25_26)
 players = get_all_players()
 
-st.header("Hala 2025/2026")
 st.button("Odśwież")
 
 

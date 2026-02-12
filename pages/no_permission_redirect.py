@@ -3,10 +3,13 @@ import time
 import streamlit as st
 
 from menu import menu
+from utils.pages import set_page
+
+PAGE_NAME = "Brak uprawnień!"
+set_page(PAGE_NAME)
 
 menu()
 
-st.header("Brak uprawnień!")
 st.warning("Nie masz uprawnień, aby zobaczyć tę stronę! Zostaniesz przekierowany na stronę główną.")
 st.button("Przekieruj teraz", on_click=lambda: st.switch_page("streamlit_app.py"))
 msg = st.empty()
