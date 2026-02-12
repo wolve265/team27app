@@ -1,11 +1,20 @@
 from typing import TypedDict
 
+import streamlit as st
 from pymongo.collection import Collection
 
 from utils.db.client import get_client
 
 client = get_client()
 
+player_column_config_mapping = {
+    "_id": None,
+    "name": "Imię",
+    "surname": "Nazwisko",
+    "team27_number": st.column_config.NumberColumn(label="Numer"),
+    "psid": None,
+    "user_email": None,
+}
 
 class Player(TypedDict):
     name: str

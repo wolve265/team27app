@@ -1,16 +1,21 @@
+import pandas as pd
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.players import Player, add_player, delete_player, edit_player, get_all_players
+from utils.db.players import (
+    Player,
+    add_player,
+    delete_player,
+    edit_player,
+    get_all_players,
+    player_column_config_mapping,
+)
 from utils.db.users import UserRole
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
 players: list[Player] = get_all_players()
-for p in players:
-    keys_to_pop = [key for key in p.keys() if key.startswith("_")]
-    for key in keys_to_pop:
-        p.pop(key)  # type: ignore
+
 
 if "notification" in st.session_state:
     notification = st.session_state.pop("notification")
@@ -21,15 +26,16 @@ st.header("Zarządzanie zawodnikami")
 
 with st.expander("Zawodnicy", expanded=True):
     st.button("Odśwież")
-    players_to_show = [
-        {
-            "Numer": p["team27_number"],
-            "Imię": p["name"],
-            "Nazwisko": p["surname"],
-        }
-        for p in players
-    ]
-    st.table(sorted(players_to_show, key=lambda p: p["Nazwisko"]))
+    players_df = pd.DataFrame(data=players)
+    players_df = players_df.drop(columns="_id")
+    players_df = players_df.style.apply(
+        lambda x: ["color: cyan" if val > 0 else "" for val in x], subset=["team27_number"]
+    )
+    st.dataframe(
+        data=players_df,
+        hide_index=True,
+        column_config=player_column_config_mapping,
+    )
 
 
 with st.form("add_player_form"):
