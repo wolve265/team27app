@@ -29,7 +29,8 @@ if "notification" in st.session_state:
 
 with st.expander("Zawodnicy", expanded=True):
     st.button("Odśwież")
-    dumped_players = [p.model_dump() for p in players]
+    t27_only = st.checkbox("Tylko Team27")
+    dumped_players = [p.model_dump() for p in players if not (t27_only and p.team27_number <= 0)]
     players_df = pd.DataFrame(dumped_players)
     if not players_df.empty:
         players_df = players_df.drop(columns="id")
