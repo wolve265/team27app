@@ -13,8 +13,6 @@ set_page(PAGE_NAME)
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
 players = get_all_players()
-for p in players:
-    p.pop("_id")  # type: ignore
 
 if "notification" in st.session_state:
     notification = st.session_state.pop("notification")
@@ -34,29 +32,29 @@ with st.container(border=True):
 with st.container(border=True):
     st.subheader("Wyślij powiadomienie o zaległej wpłacie")
     st.warning("Ta funkcjonalność jest eksperymentalna")
-    fullname = st.selectbox(
+    player_to_notify = st.selectbox(
         "Wybierz zawodnika",
         index=None,
         key="notify_player",
-        options=[f"{p['name']} {p['surname']}" for p in players],
+        options=players,
+        format_func=lambda p: p.fullname,
     )
     submit = False
-    if fullname:
-        player = next(p for p in players if f"{p['name']} {p['surname']}" == fullname)
+    if player_to_notify:
         amount = st.text_input("Kwota do zapłaty (zł)", key="notify_amount")
         submit = st.button("Wyślij powiadomienie")
-    if submit:
-        if not amount:
-            st.error("Kwota jest wymagana!")
-        else:
-            try:
-                send_cash_notification(player, amount)
-            except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+        if submit:
+            if not amount:
+                st.error("Kwota jest wymagana!")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Powiadomienie do '{fullname}' zostało wysłane!",
-                }
-            finally:
-                st.rerun()
+                try:
+                    send_cash_notification(player_to_notify, amount)
+                except Exception as e:
+                    st.session_state.notification = {"msg": str(e), "icon": "❌"}
+                else:
+                    st.session_state.notification = {
+                        "icon": "✅",
+                        "msg": f"Powiadomienie do '{player_to_notify.fullname}' zostało wysłane!",
+                    }
+                finally:
+                    st.rerun()

@@ -118,7 +118,7 @@ with st.container(border=True):
             default=st.session_state.edit_players,
             format_func=lambda p: p.fullname,
         )
-        game_to_edit.players_ids=[str(p.id) for p in edit_players]
+        game_to_edit.players_ids = [str(p.id) for p in edit_players]
         submit = st.button("Zapisz")
         if submit:
             try:

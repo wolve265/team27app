@@ -33,7 +33,7 @@ with st.expander("Użytkownicy", expanded=True):
     st.table(users)
 
 with st.form("add_user_form"):
-    st.header("Dodaj użytkownika", text_alignment="center")
+    st.subheader("Dodaj użytkownika", text_alignment="center")
     email = st.text_input("Email")
     role = st.selectbox("Rola", UserRole.list_all())
     submit = st.form_submit_button("Dodaj")
@@ -55,7 +55,7 @@ with st.form("add_user_form"):
                 st.rerun()
 
 with st.container(border=True):
-    st.header("Edytuj rolę użytkownika", text_alignment="center")
+    st.subheader("Edytuj rolę użytkownika", text_alignment="center")
     email = st.selectbox(
         "Wybierz użytkownika", key="edit_user", options=[u["email"] for u in users]
     )
@@ -86,7 +86,7 @@ with st.container(border=True):
             st.rerun()
 
 with st.container(border=True):
-    st.header("Usuń użytkownika", text_alignment="center")
+    st.subheader("Usuń użytkownika", text_alignment="center")
     email = st.selectbox(
         "Wybierz użytkownika", key="delete_user", options=[u["email"] for u in users]
     )

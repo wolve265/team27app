@@ -29,7 +29,6 @@ class Season(StrEnum):
         return [e for e in cls]
 
 
-
 class Game(BaseModel):
     id: PydanticObjectId | None = None
     datetime: datetime.datetime
