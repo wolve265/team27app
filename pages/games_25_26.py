@@ -1,9 +1,7 @@
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.games import Game, Season, get_all_games
-
-# is_player_in_game
+from utils.db.games import Season, get_all_games
 from utils.db.players import get_all_players
 from utils.pages import set_page
 

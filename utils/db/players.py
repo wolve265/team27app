@@ -1,8 +1,10 @@
 import streamlit as st
-from pydantic import BaseModel, EmailStr, Field, computed_field
+from pydantic import BaseModel, Field, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_client
+
+# from pydantic import EmailStr # TODO: check email str
 
 client = get_client()
 
