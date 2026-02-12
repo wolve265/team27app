@@ -1,9 +1,19 @@
 import datetime
 
+import pandas as pd
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.games import Game, GamePlayer, Season, add_game, delete_game, edit_game, get_all_games
+from utils.db.games import (
+    Game,
+    GamePlayer,
+    Season,
+    add_game,
+    delete_game,
+    edit_game,
+    game_column_config_mapping,
+    get_all_games,
+)
 from utils.db.players import get_all_players
 from utils.db.users import UserRole
 from utils.pages import set_page
@@ -24,16 +34,17 @@ if "notification" in st.session_state:
 
 with st.expander("Gierki", expanded=True):
     st.button("Odśwież")
-    games_to_show = [
-        {
-            # "Sezon": g["season"],
-            "Data": g.date,
-            "Cena (zł)": g.cost,
-            "Liczba graczy": len(g.players),
-        }
-        for g in sorted(games, key=lambda g: g.datetime, reverse=True)
-    ]
-    st.table(games_to_show)
+    dumped_games = [g.model_dump() for g in games]
+    games_df = pd.DataFrame(dumped_games)
+    games_df = games_df.sort_values(by="date", ascending=False)
+    if not games_df.empty:
+        games_df = games_df.drop(columns="id")
+        st.dataframe(
+            data=games_df,
+            hide_index=True,
+            column_order=["date", "cost", "players_count"],
+            column_config=game_column_config_mapping,
+        )
 
 
 with st.form("add_game_form"):
@@ -43,7 +54,9 @@ with st.form("add_game_form"):
     dt = datetime.datetime.combine(date, datetime.time(hour=12))
     cost = st.number_input("Koszt (zł)", min_value=0, max_value=None)
     add_players = st.multiselect(
-        "Uczestnicy", options=players, format_func=lambda p: f"{p['name']} {p['surname']}"
+        "Uczestnicy",
+        options=[GamePlayer(**p.model_dump()) for p in players],
+        format_func=lambda gp: f"{gp.name} {gp.surname}",
     )
     submit = st.form_submit_button("Dodaj")
     if submit:
@@ -102,7 +115,7 @@ with st.container(border=True):
         game_to_edit.players = st.multiselect(
             "Uczestnicy",
             # key="edit_players",
-            options=[GamePlayer(**p) for p in players],
+            options=[GamePlayer(**p.model_dump()) for p in players],
             default=st.session_state.edit_players,
             format_func=lambda gp: f"{gp.name} {gp.surname}",
         )

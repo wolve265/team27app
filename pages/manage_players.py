@@ -18,7 +18,7 @@ set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
-players: list[Player] = get_all_players()
+players = get_all_players()
 
 
 if "notification" in st.session_state:
@@ -29,24 +29,27 @@ if "notification" in st.session_state:
 
 with st.expander("Zawodnicy", expanded=True):
     st.button("Odśwież")
-    players_df = pd.DataFrame(data=players)
-    players_df = players_df.drop(columns="_id")
-    styled_df = players_df.style.apply(
-        lambda x: ["color: cyan" if val > 0 else "" for val in x], subset=["team27_number"]
-    )
-    st.dataframe(
-        data=styled_df,
-        hide_index=True,
-        column_config=player_column_config_mapping,
-    )
-    left, mid, right = st.columns(3)
-    left.write("Liczba zawodników:")
-    mid.write(f"Team27 - {len(players_df.loc[players_df['team27_number'] > 0])}")
-    right.write(f"Ogółem - {len(players_df)}")
+    dumped_players = [p.model_dump() for p in players]
+    players_df = pd.DataFrame(dumped_players)
+    if not players_df.empty:
+        players_df = players_df.drop(columns="id")
+        styled_df = players_df.style.apply(
+            lambda x: ["color: cyan" if val > 0 else "" for val in x], subset=["team27_number"]
+        )
+        st.dataframe(
+            data=styled_df,
+            hide_index=True,
+            column_order=["team27_number", "name", "surname"],
+            column_config=player_column_config_mapping,
+        )
+        left, mid, right = st.columns(3)
+        left.write("Liczba zawodników:")
+        mid.write(f"Team27 - {len(players_df.loc[players_df['team27_number'] > 0])}")
+        right.write(f"Ogółem - {len(players_df)}")
 
 
 with st.form("add_player_form"):
-    st.header("Dodaj zawodnika", text_alignment="center")
+    st.subheader("Dodaj zawodnika", text_alignment="center")
     name = st.text_input("Imię")
     surname = st.text_input("Nazwisko")
     team27_number = st.number_input(
@@ -88,7 +91,7 @@ with st.form("add_player_form"):
             else:
                 st.session_state.notification = {
                     "icon": "✅",
-                    "msg": f"Zawodnik '{name} {surname}' dodany!",
+                    "msg": f"Zawodnik '{player.fullname}' dodany!",
                 }
             finally:
                 st.rerun()
@@ -99,26 +102,24 @@ def update_edit_player_form() -> None:
         return
     if not st.session_state.edit_player:
         return
-    fullname = st.session_state["edit_player"]
-    player = next(p for p in players if f"{p['name']} {p['surname']}" == fullname)
-    st.session_state.edit_team27_number = player["team27_number"]
-    st.session_state.edit_psid = player["psid"]
-    st.session_state.edit_user_email = player["user_email"]
+    player: Player = st.session_state["edit_player"]
+    st.session_state.edit_team27_number = player.team27_number
+    st.session_state.edit_psid = player.psid
+    st.session_state.edit_user_email = player.user_email
 
 
 with st.container(border=True):
-    st.header("Edytuj zawodnika", text_alignment="center")
-    fullname = st.selectbox(
+    st.subheader("Edytuj zawodnika", text_alignment="center")
+    player_to_edit = st.selectbox(
         "Wybierz zawodnika",
         index=None,
+        format_func=lambda p: p.fullname,
         key="edit_player",
-        options=[f"{p['name']} {p['surname']}" for p in players],
+        options=players,
         on_change=update_edit_player_form,
     )
-    if fullname:
-        player = next(p for p in players if f"{p['name']} {p['surname']}" == fullname)
-        edited_player = Player(**player)
-        edited_player["team27_number"] = st.number_input(
+    if player_to_edit:
+        player_to_edit.team27_number = st.number_input(
             "Numer w Team 27",
             key="edit_team27_number",
             min_value=0,
@@ -126,52 +127,51 @@ with st.container(border=True):
             step=1,
             help="Wpisz 0, jeśli zawodnik nie jest członkiem Team 27.",
         )
-        edited_player["psid"] = st.text_input(
+        player_to_edit.psid = st.text_input(
             "PSID",
             key="edit_psid",
             help="Zostaw puste, jeśli zawodnik nie jest połączony z systemem powiadomień.",
         )
-        edited_player["user_email"] = st.text_input(
+        player_to_edit.user_email = st.text_input(
             "Email użytkownika",
             key="edit_user_email",
-            value=player["user_email"],
             help="Zostaw puste, jeśli zawodnik nie jest połączony z żadnym użytkownikiem.",
         )
         submit = st.button("Zapisz")
-    if submit:
-        try:
-            edit_player(edited_player)
-        except Exception as e:
-            st.session_state.notification = {"msg": str(e), "icon": "❌"}
-        else:
-            st.session_state.notification = {
-                "icon": "✅",
-                "msg": f"Zawodnik '{fullname}' zedytowany!",
-            }
-        finally:
-            st.rerun()
+        if submit:
+            try:
+                edit_player(player_to_edit)
+            except Exception as e:
+                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+            else:
+                st.session_state.notification = {
+                    "icon": "✅",
+                    "msg": f"Zawodnik '{player_to_edit.fullname}' zedytowany!",
+                }
+            finally:
+                st.rerun()
 
 
 with st.container(border=True):
-    st.header("Usuń zawodnika", text_alignment="center")
-    fullname = st.selectbox(
+    st.subheader("Usuń zawodnika", text_alignment="center")
+    player_to_delete = st.selectbox(
         "Wybierz zawodnika",
         index=None,
+        format_func=lambda p: p.fullname,
         key="delete_player",
-        options=[f"{p['name']} {p['surname']}" for p in players],
+        options=players,
     )
-    if fullname:
-        player = next(p for p in players if f"{p['name']} {p['surname']}" == fullname)
+    if player_to_delete:
         submit = st.button("Usuń")
-    if submit:
-        try:
-            delete_player(player)
-        except Exception as e:
-            st.session_state.notification = {"msg": str(e), "icon": "❌"}
-        else:
-            st.session_state.notification = {
-                "icon": "✅",
-                "msg": f"Zawodnik '{fullname}' usunięty!",
-            }
-        finally:
-            st.rerun()
+        if submit:
+            try:
+                delete_player(player_to_delete)
+            except Exception as e:
+                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+            else:
+                st.session_state.notification = {
+                    "icon": "✅",
+                    "msg": f"Zawodnik '{player_to_delete.fullname}' usunięty!",
+                }
+            finally:
+                st.rerun()

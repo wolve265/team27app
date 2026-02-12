@@ -2,10 +2,23 @@ import datetime
 from enum import StrEnum
 from typing import Self
 
-from pydantic import BaseModel
+import streamlit as st
+from pydantic import BaseModel, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_client
+
+client = get_client()
+
+game_column_config_mapping = {
+    "_id": None,
+    "datetime": None,
+    "season": None,
+    "cost": st.column_config.NumberColumn("Koszt", format="%d zł"),
+    "players": None,
+    "date": "Data",
+    "players_count": "Liczba graczy",
+}
 
 
 class Season(StrEnum):
@@ -28,17 +41,20 @@ class Game(BaseModel):
     cost: int
     players: list[GamePlayer]
 
+    @computed_field(repr=False)
     @property
     def date(self) -> str:
         return self.datetime.strftime("%d.%m.%Y")
+
+    @computed_field(repr=False)
+    @property
+    def players_count(self) -> int:
+        return len(self.players)
 
 
 class GamesRepository(AbstractRepository[Game]):
     class Meta:
         collection_name = "games"
-
-
-client = get_client()
 
 
 def get_all_games(season: Season | None = None) -> list[Game]:
@@ -50,32 +66,32 @@ def get_all_games(season: Season | None = None) -> list[Game]:
     Returns:
         list of games
     """
-    games_repo = GamesRepository(client["t27app"])
+    repo = GamesRepository(client["t27app"])
     season_filter = {"season": season} if season else {}
-    games = games_repo.find_by(season_filter)
+    games = repo.find_by(season_filter)
     items_l = sorted(games, key=lambda g: g.datetime)
     return items_l
 
 
-def add_game(game: Game) -> None:
+def add_game(new_game: Game) -> None:
     """Add a game to the collection."""
-    games_repo = GamesRepository(client["t27app"])
-    games = games_repo.find_by({})
-    if any(game.datetime == g.datetime for g in games):
-        raise RuntimeError(f"Game '{game.datetime} already exists.")
-    games_repo.save(game)
+    repo = GamesRepository(client["t27app"])
+    games = repo.find_by({})
+    if any(new_game.datetime == g.datetime for g in games):
+        raise RuntimeError(f"Game '{new_game.datetime} already exists.")
+    repo.save(new_game)
 
 
 def edit_game(game: Game) -> None:
     """Update a game in the collection."""
-    games_repo = GamesRepository(client["t27app"])
-    games_repo.save(game)
+    repo = GamesRepository(client["t27app"])
+    repo.save(game)
 
 
 def delete_game(game: Game) -> None:
     """Delete a game from the collection."""
-    games_repo = GamesRepository(client["t27app"])
-    games_repo.delete(game)
+    repo = GamesRepository(client["t27app"])
+    repo.delete(game)
 
 
 def is_player_in_game(game: Game, game_player: GamePlayer) -> bool:
