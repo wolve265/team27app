@@ -27,8 +27,8 @@ st.button("Odśwież")
 
 for i, game in enumerate(games):
     expanded = i == 0
-    with st.expander(game.date, expanded=expanded):
-        st.subheader(game.date, text_alignment="center")
+    with st.expander(game.date(), expanded=expanded):
+        st.subheader(game.date(), text_alignment="center")
         players_in_game = [p for p in players if str(p.id) in game.players_ids]
         left, mid, right = st.columns(3)
         left.write("Liczba zawodników:")

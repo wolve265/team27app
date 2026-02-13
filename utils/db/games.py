@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from enum import StrEnum
 from typing import Self
 
@@ -6,17 +6,16 @@ import streamlit as st
 from pydantic import BaseModel, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
-from utils.db.client import get_client
+from utils.db.client import get_client, get_db
 
 client = get_client()
 
 game_column_config_mapping = {
     "id": None,
-    "datetime": None,
+    "datetime": st.column_config.DateColumn("Data", format="DD.MM.YYYY"),
     "season": None,
     "cost": st.column_config.NumberColumn("Koszt", format="%d zł"),
     "players_ids": None,
-    "date": "Data",
     "players_count": "Liczba graczy",
 }
 
@@ -31,7 +30,7 @@ class Season(StrEnum):
 
 class Game(BaseModel):
     id: PydanticObjectId | None = None
-    datetime: datetime.datetime
+    datetime: dt.datetime
     season: Season
     cost: int
     players_ids: list[str]
@@ -48,8 +47,12 @@ class Game(BaseModel):
 
 
 class GamesRepository(AbstractRepository[Game]):
-    class Meta:
+    class Meta: # pyright: ignore[reportIncompatibleVariableOverride]
         collection_name = "games"
+
+
+def get_games_repo() -> GamesRepository:
+    return GamesRepository(get_db())
 
 
 def get_all_games(season: Season | None = None) -> list[Game]:
