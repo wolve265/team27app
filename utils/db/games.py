@@ -7,6 +7,7 @@ from pydantic import BaseModel, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_client, get_db
+from utils.db.players import Player
 
 client = get_client()
 
@@ -47,7 +48,7 @@ class Game(BaseModel):
 
 
 class GamesRepository(AbstractRepository[Game]):
-    class Meta: # pyright: ignore[reportIncompatibleVariableOverride]
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         collection_name = "games"
 
 
@@ -55,45 +56,12 @@ def get_games_repo() -> GamesRepository:
     return GamesRepository(get_db())
 
 
-def get_all_games(season: Season | None = None) -> list[Game]:
-    """Pull all games from the collection.
-
-    Args:
-        season: name of the season to get all games. If None - get games from all seasons
-
-    Returns:
-        list of games
-    """
-    repo = GamesRepository(client["t27app"])
-    season_filter = {"season": season} if season else {}
-    games = repo.find_by(season_filter)
-    items_l = sorted(games, key=lambda g: g.datetime, reverse=True)
-    return items_l
+def get_player_games(games: list[Game], player: Player) -> list[Game]:
+    player_games = [g for g in games if str(player.id) in g.players_ids]
+    return player_games
 
 
-def add_game(new_game: Game) -> None:
-    """Add a game to the collection."""
-    repo = GamesRepository(client["t27app"])
-    games = repo.find_by({})
-    if any(new_game.datetime == g.datetime for g in games):
-        raise RuntimeError(f"Game '{new_game.datetime} already exists.")
-    repo.save(new_game)
-
-
-def edit_game(game: Game) -> None:
-    """Update a game in the collection."""
-    repo = GamesRepository(client["t27app"])
-    repo.save(game)
-
-
-def delete_game(game: Game) -> None:
-    """Delete a game from the collection."""
-    repo = GamesRepository(client["t27app"])
-    repo.delete(game)
-
-
-# def is_player_in_game(game: Game, game_player: GamePlayer) -> bool:
-#     for gp in game.players_ids:
-#         if gp.name == game_player.name and gp.surname == game_player.surname:
-#             return True
-#     return False
+def get_player_games_cost(games: list[Game], player: Player) -> int:
+    player_games = get_player_games(games, player)
+    games_cost = sum([g.cost for g in player_games])
+    return games_cost

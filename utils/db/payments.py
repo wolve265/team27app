@@ -1,5 +1,3 @@
-from collections.abc import Iterable
-
 from pydantic import BaseModel
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
@@ -14,27 +12,19 @@ class Payment(BaseModel):
 
 
 class PaymentsRepository(AbstractRepository[Payment]):
-    class Meta: # pyright: ignore[reportIncompatibleVariableOverride]
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         collection_name = "payments"
-
-    def get_player_payments(
-        self, player: Player, projection: dict[str, int] | None = None
-    ) -> Iterable[Payment]:
-        query = {"player_id": str(player.id)}
-        player_payments = self.find_by(query, projection=projection)
-        return player_payments
-
-    def get_player_payments_sum(self, player: Player) -> int:
-        pipeline = [
-            {
-                "$group": {
-                    "total": {"$sum": "$value"},
-                },
-            },
-        ]
-        result = self.get_collection().aggregate(pipeline)
-        return result["total"] if result else 0
 
 
 def get_payments_repo() -> PaymentsRepository:
     return PaymentsRepository(get_db())
+
+
+def get_player_payments(payments: list[Payment], player: Player) -> list[Payment]:
+    player_payments = [pay for pay in payments if str(player.id) == pay.player_id]
+    return player_payments
+
+
+def get_player_payments_sum(payments: list[Payment], player: Player) -> int:
+    player_payments = get_player_payments(payments, player)
+    return sum([pay.value for pay in player_payments])

@@ -1,7 +1,8 @@
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.games import Season, get_all_games
+from utils.db.games import Season, get_games_repo, get_player_games, get_player_games_cost
+from utils.db.payments import get_payments_repo, get_player_payments_sum
 from utils.db.players import get_all_players
 from utils.pages import set_page
 
@@ -10,8 +11,14 @@ set_page(PAGE_NAME)
 
 menu_with_redirect()
 
-games = get_all_games(season=Season.INDOOR_25_26)
+games_repo = get_games_repo()
+payments_repo = get_payments_repo()
+
+games = sorted(
+    games_repo.find_by({"season": Season.INDOOR_25_26}), key=lambda g: g.datetime, reverse=True
+)
 players = get_all_players()
+payments = list(payments_repo.find_by({}))
 
 st.button("Odśwież")
 
@@ -27,8 +34,9 @@ st.button("Odśwież")
 
 for i, game in enumerate(games):
     expanded = i == 0
-    with st.expander(game.date(), expanded=expanded):
-        st.subheader(game.date(), text_alignment="center")
+    games_since_this_one = [g for g in games if g.datetime <= game.datetime]
+    with st.expander(game.date, expanded=expanded):
+        st.subheader(game.date, text_alignment="center")
         players_in_game = [p for p in players if str(p.id) in game.players_ids]
         left, mid, right = st.columns(3)
         left.write("Liczba zawodników:")
@@ -38,8 +46,11 @@ for i, game in enumerate(games):
             {
                 "Imię": p.name,
                 "Nazwisko": p.surname,
-                # "Zapłacono?": "✅" if is_game_paid_by_player(game, p) else "❌",
-                "Zapłacono?": True,
+                "Zapłacono?": (pay_sum:=get_player_payments_sum(payments, p)) >= (game_cost:=get_player_games_cost(games_since_this_one, p)),
+                "Liczba gierek": len(get_player_games(games_since_this_one, p)),
+                "Suma wpłat": pay_sum,
+                "Koszt gierek": game_cost,
+                "Bilans": pay_sum - game_cost,
             }
             for p in players_in_game
         ]

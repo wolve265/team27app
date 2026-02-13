@@ -4,15 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.games import (
-    Game,
-    Season,
-    add_game,
-    delete_game,
-    edit_game,
-    game_column_config_mapping,
-    get_all_games,
-)
+from utils.db.games import Game, Season, game_column_config_mapping, get_games_repo
 from utils.db.players import get_all_players
 from utils.db.users import UserRole
 from utils.pages import set_page
@@ -22,7 +14,9 @@ set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
-games = get_all_games()
+games_repo = get_games_repo()
+
+games = sorted(games_repo.find_by({}), key=lambda g: g.datetime, reverse=True)
 players = get_all_players()
 
 if "notification" in st.session_state:
@@ -66,7 +60,7 @@ with st.form("add_game_form"):
             players_ids=[str(p.id) for p in add_players],
         )
         try:
-            add_game(game)
+            games_repo.save(game)
         except Exception as e:
             st.session_state.notification = {"msg": str(e), "icon": "❌"}
         else:
@@ -122,7 +116,7 @@ with st.container(border=True):
         submit = st.button("Zapisz")
         if submit:
             try:
-                edit_game(game_to_edit)
+                games_repo.save(game_to_edit)
             except Exception as e:
                 st.session_state.notification = {"msg": str(e), "icon": "❌"}
             else:
@@ -147,7 +141,7 @@ with st.container(border=True):
         submit = st.button("Usuń")
         if submit:
             try:
-                delete_game(game_to_delete)
+                games_repo.delete(game_to_delete)
             except Exception as e:
                 st.session_state.notification = {"msg": str(e), "icon": "❌"}
             else:
