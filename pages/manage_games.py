@@ -35,7 +35,7 @@ with st.expander("Gierki", expanded=True):
         st.dataframe(
             data=games_df,
             hide_index=True,
-            column_order=["date", "cost", "players_count"],
+            column_order=["datetime", "cost", "players_count"],
             column_config=game_column_config_mapping,
         )
 

@@ -49,6 +49,11 @@ def menu() -> None:
                     icon=":material/sports_soccer:",
                 )
                 st.page_link(
+                    "pages/manage_payments.py",
+                    label="Płatności",
+                    icon=":material/attach_money:",
+                )
+                st.page_link(
                     "pages/manage_notifications.py",
                     label="Powiadomienia",
                     icon=":material/notifications:",

@@ -10,6 +10,10 @@ class Payment(BaseModel):
     player_id: str
     value: int
 
+    def format(self, players: list[Player]) -> str:
+        player = next(p for p in players if str(p.id) == self.player_id)
+        return f"{player.fullname} - {self.value} zł"
+
 
 class PaymentsRepository(AbstractRepository[Payment]):
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]

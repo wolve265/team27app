@@ -46,7 +46,8 @@ for i, game in enumerate(games):
             {
                 "Imię": p.name,
                 "Nazwisko": p.surname,
-                "Zapłacono?": (pay_sum:=get_player_payments_sum(payments, p)) >= (game_cost:=get_player_games_cost(games_since_this_one, p)),
+                "Zapłacono?": (pay_sum := get_player_payments_sum(payments, p))
+                >= (game_cost := get_player_games_cost(games_since_this_one, p)),
                 "Liczba gierek": len(get_player_games(games_since_this_one, p)),
                 "Suma wpłat": pay_sum,
                 "Koszt gierek": game_cost,
