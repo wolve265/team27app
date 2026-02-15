@@ -25,6 +25,9 @@ if "notification" in st.session_state:
 
 with st.expander("Płatności", expanded=True):
     st.button("Odśwież")
+    cols = st.columns(2)
+    cols[0].write(f"Liczba płatności: {len(payments)}")
+    cols[1].write(f"Suma płatności: {sum([pay.value for pay in payments])} zł")
     payments_to_show = [
         {
             "Kto": (player := next(p for p in players if str(p.id) == pay.player_id)).fullname,
@@ -38,12 +41,13 @@ with st.form("add_payment_form"):
     st.subheader("Dodaj płatność", text_alignment="center")
     player = st.selectbox(
         "Wybierz zawodnika",
+        index=None,
         options=players,
         format_func=lambda p: p.fullname,
     )
     value = st.number_input("Kwota (zł)", min_value=0, max_value=None)
     submit = st.form_submit_button("Dodaj")
-    if submit:
+    if submit and player:
         payment = Payment(player_id=str(player.id), value=value)
         try:
             payments_repo.save(payment)

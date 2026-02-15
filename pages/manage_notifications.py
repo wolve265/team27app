@@ -1,6 +1,8 @@
 import streamlit as st
 
 from menu import menu_with_redirect
+from utils.db.games import get_games_repo, get_player_games, get_player_games_cost
+from utils.db.payments import get_payments_repo, get_player_payments_sum
 from utils.db.players import get_all_players
 from utils.db.users import UserRole
 from utils.fb.api import Api
@@ -12,12 +14,44 @@ set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
+games_repo = get_games_repo()
+payments_repo = get_payments_repo()
+
+games = sorted(games_repo.find_by({}), key=lambda g: g.datetime, reverse=True)
 players = get_all_players()
+payments = list(payments_repo.find_by({}))
 
 if "notification" in st.session_state:
     notification = st.session_state.pop("notification")
     icon = notification["icon"]
     st.toast(notification["msg"], icon=icon)
+
+
+with st.expander("Zawodnicy - podsumowanie płatności", expanded=True):
+    st.button("Odśwież")
+    all_games_cost = sum([g.cost * g.players_count for g in games])
+    avg_game_cost = round(sum([g.cost for g in games]) / len(games))
+    all_players_payment = sum([pay.value for pay in payments])
+    cols = st.columns(3)
+    cols[0].write(f"Całkowity koszt: {all_games_cost} zł")
+    cols[1].write(f"Razem wpłat: {all_players_payment} zł")
+    all_balance = all_players_payment - all_games_cost
+    color_balance = "red" if all_balance < 0 else "green"
+    cols[2].write(f"Bilans: :{color_balance}[{all_balance} zł]")
+    players_to_show = [
+        {
+            "Zawodnik": p.fullname,
+            "Liczba gierek": len(get_player_games(games, p)),
+            "Zapłacono?": (pay_sum := get_player_payments_sum(payments, p))
+            >= (game_cost := get_player_games_cost(games, p)),
+            "Suma wpłat": pay_sum,
+            "Koszt gierek": game_cost,
+            "Bilans": (balance := pay_sum - game_cost),
+            "Gry opłacone z góry": balance // avg_game_cost,
+        }
+        for p in players
+    ]
+    st.dataframe(sorted(players_to_show, key=lambda x: x["Bilans"]))
 
 
 with st.container(border=True):
