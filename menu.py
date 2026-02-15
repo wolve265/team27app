@@ -54,9 +54,9 @@ def menu() -> None:
                     icon=":material/attach_money:",
                 )
                 st.page_link(
-                    "pages/manage_notifications.py",
-                    label="Powiadomienia",
-                    icon=":material/notifications:",
+                    "pages/paymaster_view.py",
+                    label="Widok skarbnika",
+                    icon=":material/payments:",
                 )
 
         # Socials

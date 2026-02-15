@@ -1,13 +1,12 @@
-from dataclasses import dataclass
-from typing import Self
 
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.games import Game, Season, get_games_repo, get_player_games, get_player_games_cost
-from utils.db.payments import Payment, get_payments_repo, get_player_payments_sum
-from utils.db.players import Player, get_players_repo
+from utils.db.games import Season, get_games_repo
+from utils.db.payments import get_payments_repo
+from utils.db.players import get_players_repo
 from utils.pages import set_page
+from utils.player_info import PlayerInfo
 
 PAGE_NAME = "Hala 2025/2026"
 set_page(PAGE_NAME)
@@ -30,28 +29,6 @@ players = [p for p in players if str(p.id) in players_ids_in_season]
 payments = list(payments_repo.find_by({}))
 
 games_tab, players_tab = st.tabs(["Gierki", "Zawodnicy"])
-
-
-@dataclass
-class PlayerInfo:
-    payments_sum: int
-    games_cost: int
-    balance: int
-    game_paid: bool
-    game_count: int
-
-    @classmethod
-    def from_player(cls, player: Player, games: list[Game], payments: list[Payment]) -> Self:
-        payments_sum = get_player_payments_sum(payments, player)
-        games_cost = get_player_games_cost(games, player)
-        player_games = get_player_games(games, player)
-        return cls(
-            payments_sum=payments_sum,
-            games_cost=games_cost,
-            balance=payments_sum - games_cost,
-            game_paid=payments_sum >= games_cost,
-            game_count=len(player_games),
-        )
 
 
 with games_tab:
