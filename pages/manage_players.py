@@ -28,8 +28,11 @@ if "notification" in st.session_state:
 
 
 with st.expander("Zawodnicy", expanded=True):
-    st.button("Odśwież")
     t27_only = st.checkbox("Tylko Team27")
+    cols = st.columns(3)
+    cols[0].write("Liczba zawodników:")
+    cols[1].write(f"Team27 - {len([p for p in players if p.team27_number > 0])}")
+    cols[2].write(f"Ogółem - {len(players)}")
     dumped_players = [p.model_dump() for p in players if not (t27_only and p.team27_number <= 0)]
     players_df = pd.DataFrame(dumped_players)
     if not players_df.empty:
@@ -43,10 +46,6 @@ with st.expander("Zawodnicy", expanded=True):
             column_order=["team27_number", "name", "surname"],
             column_config=player_column_config_mapping,
         )
-        left, mid, right = st.columns(3)
-        left.write("Liczba zawodników:")
-        mid.write(f"Team27 - {len(players_df.loc[players_df['team27_number'] > 0])}")
-        right.write(f"Ogółem - {len(players_df)}")
 
 
 with st.form("add_player_form"):
