@@ -54,8 +54,7 @@ with games_tab:
         games_since_this_one = [g for g in games if g.datetime <= game.datetime]
         players_in_game = [p for p in players if str(p.id) in game.players_ids]
         players_infos_in_game = [
-            PlayerInfo.from_player(p, games_since_this_one, payments)
-            for p in players_in_game
+            PlayerInfo.from_player(p, games_since_this_one, payments) for p in players_in_game
         ]
         game_paid = all([pi.game_paid for pi in players_infos_in_game])
         with st.expander(
@@ -89,10 +88,7 @@ with players_tab:
     all_balance = all_players_payment - all_games_cost
     color_balance = "red" if all_balance < 0 else "green"
     cols[2].write(f"Bilans: :{color_balance}[{all_balance} zł]")
-    players_infos = [
-            PlayerInfo.from_player(p, games, payments)
-            for p in players
-        ]
+    players_infos = [PlayerInfo.from_player(p, games, payments) for p in players]
     players_to_show = [
         {
             "Zawodnik": p.fullname,
@@ -103,6 +99,6 @@ with players_tab:
             "Bilans": f"{pi.balance} zł",
             "Gry opłacone z góry": pi.balance // avg_game_cost,
         }
-        for p, pi  in zip(players, players_infos)
+        for p, pi in zip(players, players_infos)
     ]
     st.dataframe(players_to_show)

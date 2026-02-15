@@ -77,7 +77,7 @@ def update_edit_game_form() -> None:
         return
     if not st.session_state.edit_game:
         return
-    game: Game = st.session_state["edit_game"]
+    game: Game = st.session_state.edit_game
     st.session_state.edit_season = game.season
     st.session_state.edit_cost = game.cost
     st.session_state.edit_players = [p for p in players if str(p.id) in game.players_ids]
