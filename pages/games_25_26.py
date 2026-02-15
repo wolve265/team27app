@@ -21,7 +21,12 @@ players_repo = get_players_repo()
 games = sorted(
     games_repo.find_by({"season": Season.INDOOR_25_26}), key=lambda g: g.datetime, reverse=True
 )
+players_ids_in_season: set[str] = set()
+for g in games:
+    for player_id in g.players_ids:
+        players_ids_in_season.add(player_id)
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
+players = [p for p in players if str(p.id) in players_ids_in_season]
 payments = list(payments_repo.find_by({}))
 
 games_tab, players_tab = st.tabs(["Gierki", "Zawodnicy"])
@@ -84,6 +89,10 @@ with players_tab:
     avg_game_cost = round(sum([g.cost for g in games]) / len(games))
     all_players_payment = sum([pay.value for pay in payments])
     cols = st.columns(3)
+    cols[0].write("Liczba zawodników:")
+    cols[1].write(f"Team27 - {len([p for p in players if p.team27_number > 0])}")
+    cols[2].write(f"Ogółem - {len(players)}")
+
     cols[0].write(f"Całkowity koszt: {all_games_cost} zł")
     cols[1].write(f"Razem wpłat: {all_players_payment} zł")
     all_balance = all_players_payment - all_games_cost
