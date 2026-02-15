@@ -14,6 +14,8 @@ PAGE_NAME = "Widok skarbnika"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+toast_notifications = ToastNotifications()
+
 
 games_repo = get_games_repo()
 payments_repo = get_payments_repo()
@@ -32,8 +34,6 @@ tab_names = [
     "Pozostałe - eksperymentalne",
 ]
 summary_tab, notify_tab, rest_tab = st.tabs(tab_names)
-
-toast_notifications = ToastNotifications()
 
 
 with summary_tab:
@@ -70,7 +70,9 @@ with notify_tab:
         }
         for pi in late_players_infos
     ]
-    if players_to_show:
+    if not players_to_show:
+        st.success("Nie ma nikogo z zaległymi wpłatami")
+    else:
         st.dataframe(players_to_show)
         cols = st.columns(2)
         remind_all = cols[0].button("Przypomnij wszystkim")

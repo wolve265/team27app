@@ -4,24 +4,20 @@ from menu import menu_with_redirect
 from utils.db.payments import Payment, get_payments_repo
 from utils.db.players import get_players_repo
 from utils.db.users import UserRole
-from utils.pages import set_page
+from utils.pages import ToastNotifications, set_page
 
 PAGE_NAME = "Zarządzanie płatnościami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+toast_notifications = ToastNotifications()
+
 
 payments_repo = get_payments_repo()
 players_repo = get_players_repo()
 
-payments = list(payments_repo.find_by({}))
+payments = sorted(payments_repo.find_by({}), key=lambda pay: str(pay.id), reverse=True)
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
-
-
-if "notification" in st.session_state:
-    notification = st.session_state.pop("notification")
-    icon = notification["icon"]
-    st.toast(notification["msg"], icon=icon)
 
 
 with st.expander("Płatności", expanded=True):
@@ -53,12 +49,12 @@ with st.form("add_payment_form"):
         try:
             payments_repo.save(payment)
         except Exception as e:
-            st.session_state.notification = {"msg": str(e), "icon": "❌"}
+            toast_notifications.add(msg=str(e), icon="❌")
         else:
-            st.session_state.notification = {
-                "icon": "✅",
-                "msg": f"Płatność '{payment.format(players)}' dodana!",
-            }
+            toast_notifications.add(
+                icon="✅",
+                msg=f"Płatność '{payment.format(players)}' dodana!",
+            )
         finally:
             st.rerun()
 
@@ -94,36 +90,35 @@ with st.container(border=True):
             try:
                 payments_repo.save(payment_to_edit)
             except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Płatność '{payment_to_edit.format(players)}' zedytowana!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Płatność '{payment_to_edit.format(players)}' zedytowana!",
+                )
             finally:
                 st.rerun()
 
 
 with st.container(border=True):
     st.subheader("Usuń płatność", text_alignment="center")
-    payment_to_delete = st.selectbox(
+    payments_to_delete = st.multiselect(
         "Wybierz płatność",
-        index=None,
+        options=payments,
         format_func=lambda pay: pay.format(players),
         key="delete_payment",
-        options=payments,
     )
-    if payment_to_delete:
+    if payments_to_delete:
         submit = st.button("Usuń")
         if submit:
-            try:
-                payments_repo.delete(payment_to_delete)
-            except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
-            else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Płatność '{payment_to_delete.format(players)}' usunięta!",
-                }
-            finally:
-                st.rerun()
+            for payment_to_delete in payments_to_delete:
+                try:
+                    payments_repo.delete(payment_to_delete)
+                except Exception as e:
+                    toast_notifications.add(msg=str(e), icon="❌")
+                else:
+                    toast_notifications.add(
+                        icon="✅",
+                        msg=f"Płatność '{payment_to_delete.format(players)}' usunięta!",
+                    )
+            st.rerun()

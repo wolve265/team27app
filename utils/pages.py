@@ -34,5 +34,5 @@ class ToastNotifications:
             st.session_state[self.NAME] = list()
             return
 
-    def add(self, msg: str, icon: str|None=None) -> None:
+    def add(self, msg: str, icon: str | None = None) -> None:
         st.session_state[self.NAME].append(Notification(msg, icon))
