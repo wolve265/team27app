@@ -3,7 +3,7 @@ import streamlit as st
 from menu import menu_with_redirect
 from utils.db.games import get_games_repo, get_player_games, get_player_games_cost
 from utils.db.payments import get_payments_repo, get_player_payments_sum
-from utils.db.players import get_all_players
+from utils.db.players import get_players_repo
 from utils.db.users import UserRole
 from utils.fb.api import Api
 from utils.fb.notifications import send_cash_notification
@@ -16,9 +16,10 @@ menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
 games_repo = get_games_repo()
 payments_repo = get_payments_repo()
+players_repo = get_players_repo()
 
 games = sorted(games_repo.find_by({}), key=lambda g: g.datetime, reverse=True)
-players = get_all_players()
+players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 payments = list(payments_repo.find_by({}))
 
 if "notification" in st.session_state:

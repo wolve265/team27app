@@ -6,7 +6,7 @@ import streamlit as st
 from menu import menu_with_redirect
 from utils.db.games import Game, Season, get_games_repo, get_player_games, get_player_games_cost
 from utils.db.payments import Payment, get_payments_repo, get_player_payments_sum
-from utils.db.players import Player, get_all_players
+from utils.db.players import Player, get_players_repo
 from utils.pages import set_page
 
 PAGE_NAME = "Hala 2025/2026"
@@ -16,11 +16,12 @@ menu_with_redirect()
 
 games_repo = get_games_repo()
 payments_repo = get_payments_repo()
+players_repo = get_players_repo()
 
 games = sorted(
     games_repo.find_by({"season": Season.INDOOR_25_26}), key=lambda g: g.datetime, reverse=True
 )
-players = get_all_players()
+players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 payments = list(payments_repo.find_by({}))
 
 games_tab, players_tab = st.tabs(["Gierki", "Zawodnicy"])

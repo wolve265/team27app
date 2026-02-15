@@ -4,10 +4,7 @@ import streamlit as st
 from menu import menu_with_redirect
 from utils.db.players import (
     Player,
-    add_player,
-    delete_player,
-    edit_player,
-    get_all_players,
+    get_players_repo,
     player_column_config_mapping,
 )
 from utils.db.users import UserRole
@@ -18,7 +15,9 @@ set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
-players = get_all_players()
+players_repo = get_players_repo()
+
+players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
 if "notification" in st.session_state:
@@ -85,7 +84,7 @@ with st.form("add_player_form"):
                 user_email=user_email,
             )
             try:
-                add_player(player)
+                players_repo.save(player)
             except Exception as e:
                 st.session_state.notification = {"msg": str(e), "icon": "❌"}
             else:
@@ -140,7 +139,7 @@ with st.container(border=True):
         submit = st.button("Zapisz")
         if submit:
             try:
-                edit_player(player_to_edit)
+                players_repo.save(player_to_edit)
             except Exception as e:
                 st.session_state.notification = {"msg": str(e), "icon": "❌"}
             else:
@@ -165,7 +164,7 @@ with st.container(border=True):
         submit = st.button("Usuń")
         if submit:
             try:
-                delete_player(player_to_delete)
+                players_repo.delete(player_to_delete)
             except Exception as e:
                 st.session_state.notification = {"msg": str(e), "icon": "❌"}
             else:

@@ -5,11 +5,13 @@ import streamlit as st
 from pydantic import BaseModel
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
-from utils.db.client import get_client, get_db
+from utils.db.client import get_db
 
-client = get_client()
-
-user_column_config_mapping = {"id": None, "email": "Email", "role": "Rola"}
+user_column_config_mapping = {
+    "id": None,
+    "email": "Email",
+    "role": "Rola",
+}
 
 
 class UserRole(StrEnum):

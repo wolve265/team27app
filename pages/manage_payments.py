@@ -2,7 +2,7 @@ import streamlit as st
 
 from menu import menu_with_redirect
 from utils.db.payments import Payment, get_payments_repo
-from utils.db.players import get_all_players
+from utils.db.players import get_players_repo
 from utils.db.users import UserRole
 from utils.pages import set_page
 
@@ -12,9 +12,10 @@ set_page(PAGE_NAME)
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 
 payments_repo = get_payments_repo()
+players_repo = get_players_repo()
 
 payments = list(payments_repo.find_by({}))
-players = get_all_players()
+players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
 if "notification" in st.session_state:
