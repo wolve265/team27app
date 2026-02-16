@@ -2,13 +2,13 @@ import streamlit as st
 
 from menu import menu_with_redirect
 from utils.db.users import User, UserRole, get_users_repo, user_column_config_mapping
-from utils.pages import ToastNotifications, set_page
+from utils.pages import ToastNotifications, execute_with_toast, set_page
 
 PAGE_NAME = "Zarządzanie użytkownikami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
-toast_notifications = ToastNotifications()
+ToastNotifications.render()
 
 
 users_repo = get_users_repo()
@@ -31,17 +31,9 @@ with st.form("add_user_form"):
             st.error("Email jest wymagany!")
         else:
             user = User(email=email, role=UserRole(role))
-            try:
+            with execute_with_toast(f"Użytkownik '{user.email}' dodany!"):
                 users_repo.save(user)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Użytkownik '{user.email}' dodany!",
-                )
-            finally:
-                st.rerun()
+            st.rerun()
 
 
 def update_edit_user_form() -> None:
@@ -76,17 +68,9 @@ with st.container(border=True):
             )
         submit = st.button("Zapisz", disabled=is_superadmin)
         if submit:
-            try:
+            with execute_with_toast(f"Użytkownik '{user_to_edit.email}' zedytowany!"):
                 users_repo.save(user_to_edit)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Użytkownik '{user_to_edit.email}' zedytowany!",
-                )
-            finally:
-                st.rerun()
+            st.rerun()
 
 
 with st.container(border=True):
@@ -105,14 +89,6 @@ with st.container(border=True):
             st.warning(f"Nie możesz usunąć użytkownika o roli '{UserRole.SUPERADMIN}'!")
         submit = st.button("Usuń", disabled=is_superadmin)
         if submit:
-            try:
+            with execute_with_toast(f"Użytkownik '{user_to_delete.email}' usunięty!"):
                 users_repo.delete(user_to_delete)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Użytkownik '{user_to_delete.email}' usunięty!",
-                )
-            finally:
-                st.rerun()
+            st.rerun()

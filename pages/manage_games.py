@@ -7,13 +7,13 @@ from menu import menu_with_redirect
 from utils.db.games import Game, Season, game_column_config_mapping, get_games_repo
 from utils.db.players import get_players_repo
 from utils.db.users import UserRole
-from utils.pages import ToastNotifications, set_page
+from utils.pages import ToastNotifications, execute_with_toast, set_page
 
 PAGE_NAME = "Zarządzanie gierkami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
-toast_notifications = ToastNotifications()
+ToastNotifications.render()
 
 
 games_repo = get_games_repo()
@@ -57,17 +57,9 @@ with st.form("add_game_form"):
             cost=cost,
             players_ids=[str(p.id) for p in add_players],
         )
-        try:
+        with execute_with_toast(f"Gierka '{game.date}' dodana!"):
             games_repo.save(game)
-        except Exception as e:
-            toast_notifications.add(msg=str(e), icon="❌")
-        else:
-            toast_notifications.add(
-                icon="✅",
-                msg=f"Gierka '{game.date}' dodana!",
-            )
-        finally:
-            st.rerun()
+        st.rerun()
 
 
 def update_edit_game_form() -> None:
@@ -112,17 +104,9 @@ with st.container(border=True):
         game_to_edit.players_ids = [str(p.id) for p in edit_players]
         submit = st.button("Zapisz")
         if submit:
-            try:
+            with execute_with_toast(f"Gierka '{game_to_edit.date}' zedytowana!"):
                 games_repo.save(game_to_edit)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Gierka '{game_to_edit.date}' zedytowana!",
-                )
-            finally:
-                st.rerun()
+            st.rerun()
 
 
 with st.container(border=True):
@@ -137,13 +121,6 @@ with st.container(border=True):
         submit = st.button("Usuń")
         if submit:
             for game_to_delete in games_to_delete:
-                try:
+                with execute_with_toast(f"Gierka '{game_to_delete.date}' usunięta!"):
                     games_repo.delete(game_to_delete)
-                except Exception as e:
-                    toast_notifications.add(msg=str(e), icon="❌")
-                else:
-                    toast_notifications.add(
-                        icon="✅",
-                        msg=f"Gierka '{game_to_delete.date}' usunięta!",
-                    )
             st.rerun()

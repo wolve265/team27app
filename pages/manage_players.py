@@ -8,13 +8,13 @@ from utils.db.players import (
     player_column_config_mapping,
 )
 from utils.db.users import UserRole
-from utils.pages import ToastNotifications, set_page
+from utils.pages import ToastNotifications, execute_with_toast, set_page
 
 PAGE_NAME = "Zarządzanie zawodnikami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
-toast_notifications = ToastNotifications()
+ToastNotifications.render()
 
 
 players_repo = get_players_repo()
@@ -79,17 +79,9 @@ with st.form("add_player_form"):
                 psid=psid,
                 user_email=user_email,
             )
-            try:
+            with execute_with_toast(f"Zawodnik '{player.fullname}' dodany!"):
                 players_repo.save(player)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Zawodnik '{player.fullname}' dodany!",
-                )
-            finally:
-                st.rerun()
+            st.rerun()
 
 
 def update_edit_player_form() -> None:
@@ -134,17 +126,9 @@ with st.container(border=True):
         )
         submit = st.button("Zapisz")
         if submit:
-            try:
+            with execute_with_toast(f"Zawodnik '{player_to_edit.fullname}' zedytowany!"):
                 players_repo.save(player_to_edit)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Zawodnik '{player_to_edit.fullname}' zedytowany!",
-                )
-            finally:
-                st.rerun()
+            st.rerun()
 
 
 with st.container(border=True):
@@ -159,13 +143,6 @@ with st.container(border=True):
         submit = st.button("Usuń")
         if submit:
             for player_to_delete in players_to_delete:
-                try:
+                with execute_with_toast(f"Zawodnik '{player_to_delete.fullname}' usunięty!"):
                     players_repo.delete(player_to_delete)
-                except Exception as e:
-                    toast_notifications.add(msg=str(e), icon="❌")
-                else:
-                    toast_notifications.add(
-                        icon="✅",
-                        msg=f"Zawodnik '{player_to_delete.fullname}' usunięty!",
-                    )
             st.rerun()

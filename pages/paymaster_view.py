@@ -7,14 +7,14 @@ from utils.db.players import get_players_repo
 from utils.db.users import UserRole
 from utils.fb.api import Api
 from utils.fb.notifications import send_cash_notification
-from utils.pages import ToastNotifications, set_page
+from utils.pages import ToastNotifications, execute_with_toast, set_page
 from utils.player_info import PlayerInfo
 
 PAGE_NAME = "Widok skarbnika"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
-toast_notifications = ToastNotifications()
+ToastNotifications.render()
 
 
 games_repo = get_games_repo()
@@ -79,25 +79,15 @@ with notify_tab:
         mark_all_paid = cols[1].button("Zaznacz, że wszyscy zapłacili")
         if remind_all:
             for pi in late_players_infos:
-                try:
+                with execute_with_toast(
+                    f"Powiadomienie do '{pi.player.fullname}' zostało wysłane!"
+                ):
                     notification = send_cash_notification(pi.player, abs(pi.balance))
-                except Exception as e:
-                    toast_notifications.add(msg=str(e), icon="❌")
-                else:
-                    toast_notifications.add(
-                        msg=f"Powiadomienie do '{pi.player.fullname}' zostało wysłane!", icon="✅"
-                    )
             st.rerun()
         if mark_all_paid:
             for pi in late_players_infos:
-                try:
+                with execute_with_toast(f"Zawodnik '{pi.player.fullname}' zapłacił!"):
                     payments_repo.save(Payment(player_id=str(pi.player.id), value=abs(pi.balance)))
-                except Exception as e:
-                    toast_notifications.add(msg=str(e), icon="❌")
-                else:
-                    toast_notifications.add(
-                        msg=f"Zawodnik '{pi.player.fullname}' zapłacił!", icon="✅"
-                    )
             st.rerun()
 
 
@@ -134,14 +124,8 @@ with rest_tab:
                 if not amount:
                     st.error("Kwota jest wymagana!")
                 else:
-                    try:
+                    with execute_with_toast(
+                        f"Powiadomienie do '{player_to_notify.fullname}' zostało wysłane!"
+                    ):
                         send_cash_notification(player_to_notify, amount)
-                    except Exception as e:
-                        toast_notifications.add(msg=str(e), icon="❌")
-                    else:
-                        toast_notifications.add(
-                            icon="✅",
-                            msg=f"Powiadomienie do '{player_to_notify.fullname}' zostało wysłane!",
-                        )
-                    finally:
-                        st.rerun()
+                    st.rerun()

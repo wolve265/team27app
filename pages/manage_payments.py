@@ -4,13 +4,13 @@ from menu import menu_with_redirect
 from utils.db.payments import Payment, get_payments_repo
 from utils.db.players import get_players_repo
 from utils.db.users import UserRole
-from utils.pages import ToastNotifications, set_page
+from utils.pages import ToastNotifications, execute_with_toast, set_page
 
 PAGE_NAME = "Zarządzanie płatnościami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
-toast_notifications = ToastNotifications()
+ToastNotifications.render()
 
 
 payments_repo = get_payments_repo()
@@ -46,17 +46,9 @@ with st.form("add_payment_form"):
     submit = st.form_submit_button("Dodaj")
     if submit and player:
         payment = Payment(player_id=str(player.id), value=value)
-        try:
+        with execute_with_toast(f"Płatność '{payment.format(players)}' dodana!"):
             payments_repo.save(payment)
-        except Exception as e:
-            toast_notifications.add(msg=str(e), icon="❌")
-        else:
-            toast_notifications.add(
-                icon="✅",
-                msg=f"Płatność '{payment.format(players)}' dodana!",
-            )
-        finally:
-            st.rerun()
+        st.rerun()
 
 
 def update_edit_payment_form() -> None:
@@ -87,17 +79,9 @@ with st.container(border=True):
         )
         submit = st.button("Zapisz")
         if submit:
-            try:
+            with execute_with_toast(f"Płatność '{payment_to_edit.format(players)}' zedytowana!"):
                 payments_repo.save(payment_to_edit)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Płatność '{payment_to_edit.format(players)}' zedytowana!",
-                )
-            finally:
-                st.rerun()
+            st.rerun()
 
 
 with st.container(border=True):
@@ -112,13 +96,8 @@ with st.container(border=True):
         submit = st.button("Usuń")
         if submit:
             for payment_to_delete in payments_to_delete:
-                try:
+                with execute_with_toast(
+                    f"Płatność '{payment_to_delete.format(players)}' usunięta!"
+                ):
                     payments_repo.delete(payment_to_delete)
-                except Exception as e:
-                    toast_notifications.add(msg=str(e), icon="❌")
-                else:
-                    toast_notifications.add(
-                        icon="✅",
-                        msg=f"Płatność '{payment_to_delete.format(players)}' usunięta!",
-                    )
             st.rerun()
