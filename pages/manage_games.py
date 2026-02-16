@@ -45,7 +45,7 @@ with st.form("add_game_form"):
     dt = datetime.datetime.combine(date, datetime.time(hour=12))
     cost = st.number_input("Koszt (zł)", min_value=0, max_value=None)
     add_players = st.multiselect(
-        "Uczestnicy",
+        "Wybierz zawodników",
         options=players,
         format_func=lambda p: p.fullname,
     )
@@ -104,8 +104,7 @@ with st.container(border=True):
             max_value=None,
         )
         edit_players = st.multiselect(
-            "Uczestnicy",
-            # key="edit_players",
+            "Wybierz zawodników",
             options=players,
             default=st.session_state.edit_players,
             format_func=lambda p: p.fullname,
@@ -128,24 +127,23 @@ with st.container(border=True):
 
 with st.container(border=True):
     st.subheader("Usuń gierkę", text_alignment="center")
-    game_to_delete = st.selectbox(
-        "Wybierz gierkę",
-        index=None,
+    games_to_delete = st.multiselect(
+        "Wybierz gierkę/gierki",
+        options=games,
         format_func=lambda g: g.date,
         key="delete_game",
-        options=games,
     )
-    if game_to_delete:
+    if games_to_delete:
         submit = st.button("Usuń")
         if submit:
-            try:
-                games_repo.delete(game_to_delete)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Gierka '{game_to_delete.date}' usunięta!",
-                )
-            finally:
-                st.rerun()
+            for game_to_delete in games_to_delete:
+                try:
+                    games_repo.delete(game_to_delete)
+                except Exception as e:
+                    toast_notifications.add(msg=str(e), icon="❌")
+                else:
+                    toast_notifications.add(
+                        icon="✅",
+                        msg=f"Gierka '{game_to_delete.date}' usunięta!",
+                    )
+            st.rerun()

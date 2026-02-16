@@ -103,7 +103,7 @@ with st.container(border=True):
 with st.container(border=True):
     st.subheader("Usuń płatność", text_alignment="center")
     payments_to_delete = st.multiselect(
-        "Wybierz płatność",
+        "Wybierz płatność/płatności",
         options=payments,
         format_func=lambda pay: pay.format(players),
         key="delete_payment",

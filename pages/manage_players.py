@@ -149,24 +149,23 @@ with st.container(border=True):
 
 with st.container(border=True):
     st.subheader("Usuń zawodnika", text_alignment="center")
-    player_to_delete = st.selectbox(
-        "Wybierz zawodnika",
-        index=None,
+    players_to_delete = st.multiselect(
+        "Wybierz zawodnika/zawodników",
+        options=players,
         format_func=lambda p: p.fullname,
         key="delete_player",
-        options=players,
     )
-    if player_to_delete:
+    if players_to_delete:
         submit = st.button("Usuń")
         if submit:
-            try:
-                players_repo.delete(player_to_delete)
-            except Exception as e:
-                toast_notifications.add(msg=str(e), icon="❌")
-            else:
-                toast_notifications.add(
-                    icon="✅",
-                    msg=f"Zawodnik '{player_to_delete.fullname}' usunięty!",
-                )
-            finally:
-                st.rerun()
+            for player_to_delete in players_to_delete:
+                try:
+                    players_repo.delete(player_to_delete)
+                except Exception as e:
+                    toast_notifications.add(msg=str(e), icon="❌")
+                else:
+                    toast_notifications.add(
+                        icon="✅",
+                        msg=f"Zawodnik '{player_to_delete.fullname}' usunięty!",
+                    )
+            st.rerun()
