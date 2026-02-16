@@ -103,12 +103,19 @@ with notify_tab:
 
 with rest_tab:
     with st.container(border=True):
+        api = Api()
         st.warning("Ta funkcjonalność jest eksperymentalna")
-        remind_all = st.button("Pobierz wszystkich korespondentów")
-        if remind_all:
-            api = Api()
-            ps = api.get_all_unique_participants()
-            st.dataframe(ps)
+        cols = st.columns(2)
+        get_all_participants_button = cols[0].button("Pobierz wszystkich korespondentów")
+        get_new_participants_button = cols[1].button("Pobierz nowych korespondentów")
+        if get_all_participants_button:
+            all_participants = api.get_all_unique_participants()
+            st.dataframe(all_participants)
+        if get_new_participants_button:
+            all_participants = api.get_all_unique_participants()
+            all_known_psids = {p.psid for p in players}
+            new_participants = [pt for pt in all_participants if pt.psid not in all_known_psids]
+            st.dataframe(new_participants)
 
     with st.container(border=True):
         st.subheader("Wyślij powiadomienie o zaległej wpłacie")
@@ -120,11 +127,10 @@ with rest_tab:
             options=players,
             format_func=lambda p: p.fullname,
         )
-        remind_all = False
         if player_to_notify:
             amount = st.number_input("Kwota do zapłaty (zł)", key="notify_amount", min_value=0)
-            remind_all = st.button("Wyślij powiadomienie")
-            if remind_all:
+            submit = st.button("Wyślij powiadomienie")
+            if submit:
                 if not amount:
                     st.error("Kwota jest wymagana!")
                 else:
