@@ -16,6 +16,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pyproject-pre-commit[pre-commit]>=0.6.1",
     "ruff>=0.15.0",
     "ty>=0.0.16",
 ]
