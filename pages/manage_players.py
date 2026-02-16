@@ -8,22 +8,18 @@ from utils.db.players import (
     player_column_config_mapping,
 )
 from utils.db.users import UserRole
-from utils.pages import set_page
+from utils.pages import ToastNotifications, set_page
 
 PAGE_NAME = "Zarządzanie zawodnikami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+toast_notifications = ToastNotifications()
+
 
 players_repo = get_players_repo()
 
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
-
-
-if "notification" in st.session_state:
-    notification = st.session_state.pop("notification")
-    icon = notification["icon"]
-    st.toast(notification["msg"], icon=icon)
 
 
 with st.expander("Zawodnicy", expanded=True):
@@ -86,12 +82,12 @@ with st.form("add_player_form"):
             try:
                 players_repo.save(player)
             except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Zawodnik '{player.fullname}' dodany!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Zawodnik '{player.fullname}' dodany!",
+                )
             finally:
                 st.rerun()
 
@@ -141,12 +137,12 @@ with st.container(border=True):
             try:
                 players_repo.save(player_to_edit)
             except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Zawodnik '{player_to_edit.fullname}' zedytowany!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Zawodnik '{player_to_edit.fullname}' zedytowany!",
+                )
             finally:
                 st.rerun()
 
@@ -166,11 +162,11 @@ with st.container(border=True):
             try:
                 players_repo.delete(player_to_delete)
             except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Zawodnik '{player_to_delete.fullname}' usunięty!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Zawodnik '{player_to_delete.fullname}' usunięty!",
+                )
             finally:
                 st.rerun()

@@ -7,23 +7,20 @@ from menu import menu_with_redirect
 from utils.db.games import Game, Season, game_column_config_mapping, get_games_repo
 from utils.db.players import get_players_repo
 from utils.db.users import UserRole
-from utils.pages import set_page
+from utils.pages import ToastNotifications, set_page
 
 PAGE_NAME = "Zarządzanie gierkami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+toast_notifications = ToastNotifications()
+
 
 games_repo = get_games_repo()
 players_repo = get_players_repo()
 
 games = sorted(games_repo.find_by({}), key=lambda g: g.datetime, reverse=True)
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
-
-if "notification" in st.session_state:
-    notification = st.session_state.pop("notification")
-    icon = notification["icon"]
-    st.toast(notification["msg"], icon=icon)
 
 
 with st.expander("Gierki", expanded=True):
@@ -63,12 +60,12 @@ with st.form("add_game_form"):
         try:
             games_repo.save(game)
         except Exception as e:
-            st.session_state.notification = {"msg": str(e), "icon": "❌"}
+            toast_notifications.add(msg=str(e), icon="❌")
         else:
-            st.session_state.notification = {
-                "icon": "✅",
-                "msg": f"Gierka '{game.date}' dodana!",
-            }
+            toast_notifications.add(
+                icon="✅",
+                msg=f"Gierka '{game.date}' dodana!",
+            )
         finally:
             st.rerun()
 
@@ -119,12 +116,12 @@ with st.container(border=True):
             try:
                 games_repo.save(game_to_edit)
             except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Gierka '{game_to_edit.date}' zedytowana!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Gierka '{game_to_edit.date}' zedytowana!",
+                )
             finally:
                 st.rerun()
 
@@ -144,11 +141,11 @@ with st.container(border=True):
             try:
                 games_repo.delete(game_to_delete)
             except Exception as e:
-                st.session_state.notification = {"msg": str(e), "icon": "❌"}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Gierka '{game_to_delete.date}' usunięta!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Gierka '{game_to_delete.date}' usunięta!",
+                )
             finally:
                 st.rerun()

@@ -2,21 +2,18 @@ import streamlit as st
 
 from menu import menu_with_redirect
 from utils.db.users import User, UserRole, get_users_repo, user_column_config_mapping
-from utils.pages import set_page
+from utils.pages import ToastNotifications, set_page
 
 PAGE_NAME = "Zarządzanie użytkownikami"
 set_page(PAGE_NAME)
 
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+toast_notifications = ToastNotifications()
+
 
 users_repo = get_users_repo()
 
 users = list(users_repo.find_by({}))
-
-if "notification" in st.session_state:
-    notification = st.session_state.pop("notification")
-    icon = notification["icon"]
-    st.toast(notification["msg"], icon=icon)
 
 
 with st.expander("Użytkownicy", expanded=True):
@@ -37,12 +34,12 @@ with st.form("add_user_form"):
             try:
                 users_repo.save(user)
             except Exception as e:
-                st.session_state.notification = {"icon": "❌", "msg": str(e)}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Użytkownik '{user.email}' dodany!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Użytkownik '{user.email}' dodany!",
+                )
             finally:
                 st.rerun()
 
@@ -82,12 +79,12 @@ with st.container(border=True):
             try:
                 users_repo.save(user_to_edit)
             except Exception as e:
-                st.session_state.notification = {"icon": "❌", "msg": str(e)}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Użytkownik '{user_to_edit.email}' zedytowany!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Użytkownik '{user_to_edit.email}' zedytowany!",
+                )
             finally:
                 st.rerun()
 
@@ -111,11 +108,11 @@ with st.container(border=True):
             try:
                 users_repo.delete(user_to_delete)
             except Exception as e:
-                st.session_state.notification = {"icon": "❌", "msg": str(e)}
+                toast_notifications.add(msg=str(e), icon="❌")
             else:
-                st.session_state.notification = {
-                    "icon": "✅",
-                    "msg": f"Użytkownik '{user_to_delete.email}' usunięty!",
-                }
+                toast_notifications.add(
+                    icon="✅",
+                    msg=f"Użytkownik '{user_to_delete.email}' usunięty!",
+                )
             finally:
                 st.rerun()
