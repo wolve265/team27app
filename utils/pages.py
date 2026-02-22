@@ -55,9 +55,11 @@ def execute_with_toast(
         success_icon: Icon for success notifications (default: ✅)
 
     Usage:
+        ```python
         with execute_with_toast("Operation succeeded!"):
-            repo.save(item)
+            your_code()
         st.rerun()
+        ```
     """
     try:
         yield

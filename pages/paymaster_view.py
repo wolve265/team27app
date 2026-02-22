@@ -73,21 +73,41 @@ with notify_tab:
     if not players_to_show:
         st.success("Nie ma nikogo z zaległymi wpłatami")
     else:
-        st.dataframe(players_to_show)
+        event = st.dataframe(players_to_show, on_select="rerun", selection_mode="multi-row")
+        selected_rows = event.get("selection", {}).get("rows", [])
+        selected_players_count = len(selected_rows)
         cols = st.columns(2)
-        remind_all = cols[0].button("Przypomnij wszystkim")
-        mark_all_paid = cols[1].button("Zaznacz, że wszyscy zapłacili")
-        if remind_all:
-            for pi in late_players_infos:
-                with execute_with_toast(
-                    f"Powiadomienie do '{pi.player.fullname}' zostało wysłane!"
-                ):
-                    notification = send_cash_notification(pi.player, abs(pi.balance))
+        remind_selected = cols[0].button(
+            f"Przypomnij zaznaczonym ({selected_players_count})",
+            help=(
+                "Wysyła wiadomość przypominającą na Messengerze do zaznaczonych zawodników,"
+                " pod warunkiem, że mają dodany PSID (Facebook Paged Scoped Identifier)"
+            ),
+            disabled=selected_players_count < 1,
+        )
+        mark_selected_paid = cols[1].button(
+            f"Zaznacz zaznaczonych ({selected_players_count}), że zapłacili",
+            help=(
+                "Dodaje płatności dla zaznaczonych zawodników."
+                " Kwota dodanej płatności będzie taka, aby bilans zawodnika był równy 0."
+            ),
+            disabled=selected_players_count < 1,
+        )
+        if remind_selected:
+            for i, pi in enumerate(late_players_infos):
+                if i in selected_rows:
+                    with execute_with_toast(
+                        f"Powiadomienie do '{pi.player.fullname}' zostało wysłane!"
+                    ):
+                        notification = send_cash_notification(pi.player, abs(pi.balance))
             st.rerun()
-        if mark_all_paid:
-            for pi in late_players_infos:
-                with execute_with_toast(f"Zawodnik '{pi.player.fullname}' zapłacił!"):
-                    payments_repo.save(Payment(player_id=str(pi.player.id), value=abs(pi.balance)))
+        if mark_selected_paid:
+            for i, pi in enumerate(late_players_infos):
+                if i in selected_rows:
+                    with execute_with_toast(f"Zawodnik '{pi.player.fullname}' zapłacił!"):
+                        payments_repo.save(
+                            Payment(player_id=str(pi.player.id), value=abs(pi.balance))
+                        )
             st.rerun()
 
 
