@@ -61,19 +61,21 @@ with games_tab:
 
 
 with players_tab:
-    all_games_cost = sum([g.cost * g.players_count for g in games])
-    avg_game_cost = round(sum([g.cost for g in games]) / len(games))
-    all_players_payment = sum([pay.value for pay in payments])
+    avg_game_cost = round(sum([g.cost_per_player for g in games]) / len(games))
+    all_players_payments_expected = sum([g.cost_per_player * g.players_count for g in games])
+    all_players_payments_current = sum([pay.value for pay in payments])
+    all_balance = all_players_payments_current - all_players_payments_expected
+    color_balance = "red" if all_balance < 0 else "green"
+
     cols = st.columns(3)
     cols[0].write("Liczba zawodników:")
     cols[1].write(f"Team27 - {len([p for p in players if p.team27_number > 0])}")
     cols[2].write(f"Ogółem - {len(players)}")
 
-    cols[0].write(f"Całkowity koszt: {all_games_cost} zł")
-    cols[1].write(f"Razem wpłat: {all_players_payment} zł")
-    all_balance = all_players_payment - all_games_cost
-    color_balance = "red" if all_balance < 0 else "green"
+    cols[0].write(f"Oczekiwana suma wpłat: **{all_players_payments_expected} zł**")
+    cols[1].write(f"Suma wpłat: **{all_players_payments_current} zł**")
     cols[2].write(f"Bilans: :{color_balance}[{all_balance} zł]")
+
     players_infos = [PlayerInfo.from_player(p, games, payments) for p in players]
     players_to_show = [
         {

@@ -33,7 +33,7 @@ with st.expander("Gierki", expanded=True):
         st.dataframe(
             data=games_df,
             hide_index=True,
-            column_order=["datetime", "cost", "players_count"],
+            column_order=["datetime", "cost_per_player", "players_count"],
             column_config=game_column_config_mapping,
         )
 
@@ -43,7 +43,8 @@ with st.form("add_game_form"):
     season = st.selectbox("Wybierz sezon", options=Season.list_all())
     date = st.date_input("Data", format="DD.MM.YYYY")
     dt = datetime.datetime.combine(date, datetime.time(hour=12))
-    cost = st.number_input("Koszt (zł)", min_value=0, max_value=None)
+    cost = st.number_input("Koszt gierki (zł)", value=150, min_value=0, max_value=None)
+    cost_per_player = st.number_input("Koszt za gracza (zł)", value=15, min_value=0, max_value=None)
     add_players = st.multiselect(
         "Wybierz zawodników",
         options=players,
@@ -55,6 +56,7 @@ with st.form("add_game_form"):
             datetime=dt,
             season=Season(season),
             cost=cost,
+            cost_per_player=cost_per_player,
             players_ids=[str(p.id) for p in add_players],
         )
         with execute_with_toast(f"Gierka '{game.date}' dodana!"):
@@ -69,7 +71,7 @@ def update_edit_game_form() -> None:
         return
     game: Game = st.session_state.edit_game
     st.session_state.edit_season = game.season
-    st.session_state.edit_cost = game.cost
+    st.session_state.edit_cost = game.cost_per_player
     st.session_state.edit_players = [p for p in players if str(p.id) in game.players_ids]
 
 
@@ -89,7 +91,7 @@ with st.container(border=True):
             key="edit_season",
             options=Season.list_all(),
         )
-        game_to_edit.cost = st.number_input(
+        game_to_edit.cost_per_player = st.number_input(
             "Koszt (zł)",
             key="edit_cost",
             min_value=0,

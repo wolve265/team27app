@@ -13,7 +13,8 @@ game_column_config_mapping = {
     "id": None,
     "datetime": st.column_config.DateColumn("Data", format="DD.MM.YYYY"),
     "season": None,
-    "cost": st.column_config.NumberColumn("Koszt", format="%d zł"),
+    "cost": st.column_config.NumberColumn("Koszt gry", format="%d zł"),
+    "cost_per_player": st.column_config.NumberColumn("Koszt za gracza", format="%d zł"),
     "players_ids": None,
     "players_count": "Liczba graczy",
 }
@@ -32,6 +33,7 @@ class Game(BaseModel):
     datetime: dt.datetime
     season: Season
     cost: int
+    cost_per_player: int
     players_ids: list[str]
 
     @computed_field(repr=False)
@@ -61,5 +63,5 @@ def get_player_games(games: list[Game], player: Player) -> list[Game]:
 
 def get_player_games_cost(games: list[Game], player: Player) -> int:
     player_games = get_player_games(games, player)
-    games_cost = sum([g.cost for g in player_games])
+    games_cost = sum([g.cost_per_player for g in player_games])
     return games_cost
