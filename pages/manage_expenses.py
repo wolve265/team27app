@@ -33,7 +33,7 @@ with st.expander("Wydatki", expanded=True):
 
 with st.form("add_expense_form"):
     st.subheader("Dodaj wydatek", text_alignment="center")
-    name = st.text_input("Nazwa wydatku")
+    name = st.text_input("Nazwa wydatku", max_chars=255).strip()
     value = st.number_input("Kwota (zł)", min_value=0, max_value=None)
     submit = st.form_submit_button("Dodaj")
     if submit:

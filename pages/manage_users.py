@@ -23,7 +23,7 @@ with st.expander("Użytkownicy", expanded=True):
 
 with st.form("add_user_form"):
     st.subheader("Dodaj użytkownika", text_alignment="center")
-    email = st.text_input("Email")
+    email = st.text_input("Email", max_chars=255).strip()
     role = st.selectbox("Rola", UserRole.list_all())
     submit = st.form_submit_button("Dodaj")
     if submit:

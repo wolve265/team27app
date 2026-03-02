@@ -45,8 +45,8 @@ with st.expander("Zawodnicy", expanded=True):
 
 with st.form("add_player_form"):
     st.subheader("Dodaj zawodnika", text_alignment="center")
-    name = st.text_input("Imię")
-    surname = st.text_input("Nazwisko")
+    name = st.text_input("Imię", max_chars=255).strip()
+    surname = st.text_input("Nazwisko", max_chars=255).strip()
     team27_number = st.number_input(
         "Numer w Team 27",
         key="add_team27_number",
@@ -58,13 +58,15 @@ with st.form("add_player_form"):
     psid = st.text_input(
         "PSID",
         key="add_psid",
+        max_chars=31,
         help="Zostaw puste, jeśli zawodnik nie jest połączony z systemem powiadomień.",
-    )
+    ).strip()
     user_email = st.text_input(
         "Email użytkownika",
         key="add_user_email",
+        max_chars=255,
         help="Zostaw puste, jeśli zawodnik nie jest połączony z żadnym użytkownikiem.",
-    )
+    ).strip()
     submit = st.form_submit_button("Dodaj")
     if submit:
         if not name:
@@ -117,13 +119,15 @@ with st.container(border=True):
         player_to_edit.psid = st.text_input(
             "PSID",
             key="edit_psid",
+            max_chars=31,
             help="Zostaw puste, jeśli zawodnik nie jest połączony z systemem powiadomień.",
-        )
+        ).strip()
         player_to_edit.user_email = st.text_input(
             "Email użytkownika",
             key="edit_user_email",
+            max_chars=255,
             help="Zostaw puste, jeśli zawodnik nie jest połączony z żadnym użytkownikiem.",
-        )
+        ).strip()
         submit = st.button("Zapisz")
         if submit:
             with execute_with_toast(f"Zawodnik '{player_to_edit.fullname}' zedytowany!"):
