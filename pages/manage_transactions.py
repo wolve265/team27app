@@ -17,13 +17,19 @@ transactions_repo = get_transactions_repo()
 transactions = sorted(
     transactions_repo.find_by({}), key=lambda transaction: str(transaction.id), reverse=True
 )
+expenses = [t for t in transactions if t.is_expense()]
+revenues = [t for t in transactions if t.is_revenue()]
 
 
 with st.expander("Transakcje", expanded=True):
     st.button("Odśwież")
     cols = st.columns(2)
-    cols[0].write(f"Liczba wydatków: {len(transactions)}")
-    cols[1].write(f"Suma wydatków: {sum([t.value for t in transactions])} zł")
+    cols[0].write(f"Liczba wydatków: {len(expenses)}")
+    cols[0].write(f"Liczba wpływów: {len(revenues)}")
+    cols[1].write(f"Suma wydatków: {sum([t.value for t in expenses])} zł")
+    cols[1].write(f"Suma wpływów: {sum([t.value for t in revenues])} zł")
+    cols[0].write(f"Liczba transakcji: {len(transactions)}")
+    cols[1].write(f"Bilans transakcji: {sum([t.value for t in transactions])} zł")
     transactions_to_show = [
         {
             "Co?": t.name,
@@ -36,7 +42,7 @@ with st.expander("Transakcje", expanded=True):
 with st.form("add_transaction_form"):
     st.subheader("Dodaj wydatek", text_alignment="center")
     name = st.text_input("Nazwa wydatku", max_chars=255).strip()
-    value = st.number_input("Kwota (zł)", min_value=0, max_value=None)
+    value = st.number_input("Kwota (zł)", step=1)
     submit = st.form_submit_button("Dodaj")
     if submit:
         transaction = Transaction(name=name, value=value)

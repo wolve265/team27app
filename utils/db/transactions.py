@@ -9,6 +9,12 @@ class Transaction(BaseModel):
     name: str
     value: int
 
+    def is_expense(self) -> bool:
+        return self.value < 0
+
+    def is_revenue(self) -> bool:
+        return self.value >= 0
+
 
 class TransactionsRepository(AbstractRepository[Transaction]):
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]

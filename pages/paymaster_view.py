@@ -69,15 +69,18 @@ with payments_tab:
 
 with funds_tab:
     all_games_cost = sum([g.cost for g in games])
-    games_funds = [Transaction(name="Wynajem hali", value=-all_games_cost)]
-    payments_funds = [Transaction(name="Wpłaty od zawodników", value=all_players_payments_current)]
-    transactions_funds = [Transaction(name=t.name, value=-t.value) for t in transactions]
+    games_transaction = Transaction(name="Wynajem hali", value=-all_games_cost)
+    payments_transaction = Transaction(
+        name="Wpłaty od zawodników", value=all_players_payments_current
+    )
+    all_transactions = transactions + [games_transaction, payments_transaction]
+    revenues = [t for t in all_transactions if t.is_revenue()]
+    expenses = [t for t in all_transactions if t.is_expense()]
 
-    all_funds = games_funds + payments_funds + transactions_funds
-    revenues_sum = sum([f.value for f in all_funds if f.value > 0])
-    expenses_sum = abs(sum([f.value for f in all_funds if f.value < 0]))
+    revenues_sum = sum([t.value for t in revenues])
+    expenses_sum = sum([t.value for t in expenses])
 
-    all_balance = sum([f.value for f in all_funds])
+    all_balance = sum([t.value for t in all_transactions])
     all_balance_color = "red" if all_balance < 0 else "green"
 
     cols = st.columns(3)
@@ -85,7 +88,7 @@ with funds_tab:
     cols[1].write(f"Suma wydatków: **{expenses_sum} zł**")
     cols[2].write(f"Saldo zespołu: :{all_balance_color}[{all_balance} zł]")
 
-    funds_to_show = [{"Nazwa": e.name, "Koszt": f"{e.value} zł"} for e in all_funds]
+    funds_to_show = [{"Nazwa": t.name, "Koszt": f"{t.value} zł"} for t in all_transactions]
     st.dataframe(funds_to_show)
 
 
