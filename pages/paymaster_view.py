@@ -146,9 +146,10 @@ with rest_tab:
     with st.container(border=True):
         api = Api()
         st.warning("Ta funkcjonalność jest eksperymentalna")
-        cols = st.columns(2)
+        cols = st.columns(3)
         get_all_participants_button = cols[0].button("Pobierz wszystkich korespondentów")
         get_new_participants_button = cols[1].button("Pobierz nowych korespondentów")
+        get_missing_participants_button = cols[2].button("Pobierz brakujących korespondentów")
         if get_all_participants_button:
             all_participants = api.get_all_unique_participants()
             st.dataframe(all_participants)
@@ -157,6 +158,9 @@ with rest_tab:
             all_known_psids = {p.psid for p in players}
             new_participants = [pt for pt in all_participants if pt.psid not in all_known_psids]
             st.dataframe(new_participants)
+        if get_missing_participants_button:
+            players_with_missing_psids = [{"Zawodnik": p.fullname} for p in players if not p.psid]
+            st.dataframe(players_with_missing_psids, hide_index=False)
 
     with st.container(border=True):
         st.subheader("Wyślij powiadomienie o zaległej wpłacie")
