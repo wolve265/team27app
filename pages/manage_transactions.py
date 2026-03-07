@@ -40,13 +40,13 @@ with st.expander("Transakcje", expanded=True):
     st.dataframe(transactions_to_show)
 
 with st.form("add_transaction_form"):
-    st.subheader("Dodaj wydatek", text_alignment="center")
-    name = st.text_input("Nazwa wydatku", max_chars=255).strip()
+    st.subheader("Dodaj transakcję", text_alignment="center")
+    name = st.text_input("Nazwa transakcji", max_chars=255).strip()
     value = st.number_input("Kwota (zł)", step=1)
     submit = st.form_submit_button("Dodaj")
     if submit:
         transaction = Transaction(name=name, value=value)
-        with execute_with_toast(f"Wydatek '{transaction.name}' dodany!"):
+        with execute_with_toast(f"Transakcja '{transaction.name}' dodana!"):
             transactions_repo.save(transaction)
         st.rerun()
 
@@ -61,9 +61,9 @@ def update_edit_transaction_form() -> None:
 
 
 with st.container(border=True):
-    st.subheader("Edytuj wydatek", text_alignment="center")
+    st.subheader("Edytuj transakcję", text_alignment="center")
     transaction_to_edit = st.selectbox(
-        "Wybierz wydatek",
+        "Wybierz transakcję",
         index=None,
         format_func=lambda t: t.name,
         key="edit_transaction",
@@ -79,15 +79,15 @@ with st.container(border=True):
         )
         submit = st.button("Zapisz")
         if submit:
-            with execute_with_toast(f"Wydatek '{transaction_to_edit.name}' zedytowany!"):
+            with execute_with_toast(f"Transakcja '{transaction_to_edit.name}' zedytowana!"):
                 transactions_repo.save(transaction_to_edit)
             st.rerun()
 
 
 with st.container(border=True):
-    st.subheader("Usuń wydatek", text_alignment="center")
+    st.subheader("Usuń transakcję", text_alignment="center")
     transactions_to_delete = st.multiselect(
-        "Wybierz wydatek/wydatki",
+        "Wybierz transakcję/transakcje",
         options=transactions,
         format_func=lambda t: t.name,
         key="delete_transactions",
@@ -96,6 +96,6 @@ with st.container(border=True):
         submit = st.button("Usuń")
         if submit:
             for transaction_to_delete in transactions_to_delete:
-                with execute_with_toast(f"Wydatek '{transaction_to_delete.name}' usunięty!"):
+                with execute_with_toast(f"Transakcja '{transaction_to_delete.name}' usunięta!"):
                     transactions_repo.delete(transaction_to_delete)
             st.rerun()
