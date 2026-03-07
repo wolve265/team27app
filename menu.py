@@ -54,14 +54,14 @@ def menu() -> None:
                     icon=":material/attach_money:",
                 )
                 st.page_link(
-                    "pages/manage_expenses.py",
-                    label="Wydatki",
-                    icon=":material/shopping_bag:",
+                    "pages/manage_transactions.py",
+                    label="Transakcje",
+                    icon=":material/payments:",
                 )
                 st.page_link(
                     "pages/paymaster_view.py",
                     label="Widok skarbnika",
-                    icon=":material/payments:",
+                    icon=":material/finance:",
                 )
 
         # Socials

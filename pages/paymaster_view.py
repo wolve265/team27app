@@ -1,10 +1,10 @@
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.expenses import Expense, get_expenses_repo
 from utils.db.games import get_games_repo
 from utils.db.payments import Payment, get_payments_repo
 from utils.db.players import get_players_repo
+from utils.db.transactions import Transaction, get_transactions_repo
 from utils.db.users import UserRole
 from utils.fb.api import Api
 from utils.fb.notifications import send_cash_notification
@@ -18,12 +18,12 @@ menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 ToastNotifications.render()
 
 
-expenses_repo = get_expenses_repo()
+transactions_repo = get_transactions_repo()
 games_repo = get_games_repo()
 payments_repo = get_payments_repo()
 players_repo = get_players_repo()
 
-expenses = list(expenses_repo.find_by({}))
+transactions = list(transactions_repo.find_by({}))
 games = sorted(games_repo.find_by({}), key=lambda g: g.datetime, reverse=True)
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 payments = list(payments_repo.find_by({}))
@@ -69,11 +69,11 @@ with payments_tab:
 
 with funds_tab:
     all_games_cost = sum([g.cost for g in games])
-    games_funds = [Expense(name="Wynajem hali", value=-all_games_cost)]
-    payments_funds = [Expense(name="Wpłaty od zawodników", value=all_players_payments_current)]
-    expenses_funds = [Expense(name=e.name, value=-e.value) for e in expenses]
+    games_funds = [Transaction(name="Wynajem hali", value=-all_games_cost)]
+    payments_funds = [Transaction(name="Wpłaty od zawodników", value=all_players_payments_current)]
+    transactions_funds = [Transaction(name=t.name, value=-t.value) for t in transactions]
 
-    all_funds = games_funds + payments_funds + expenses_funds
+    all_funds = games_funds + payments_funds + transactions_funds
     revenues_sum = sum([f.value for f in all_funds if f.value > 0])
     expenses_sum = abs(sum([f.value for f in all_funds if f.value < 0]))
 

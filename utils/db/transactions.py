@@ -4,16 +4,16 @@ from pydantic_mongo import AbstractRepository, PydanticObjectId
 from utils.db.client import get_db
 
 
-class Expense(BaseModel):
+class Transaction(BaseModel):
     id: PydanticObjectId | None = None
     name: str
     value: int
 
 
-class ExpensesRepository(AbstractRepository[Expense]):
+class TransactionsRepository(AbstractRepository[Transaction]):
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
-        collection_name = "expenses"
+        collection_name = "transactions"
 
 
-def get_expenses_repo() -> ExpensesRepository:
-    return ExpensesRepository(get_db())
+def get_transactions_repo() -> TransactionsRepository:
+    return TransactionsRepository(get_db())
