@@ -5,7 +5,7 @@ description = "Team 27 App in Streamlit"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "authlib>=1.6.7",
+    "authlib>=1.6.11",
     "email-validator>=2.3.0",
     "pydantic-mongo>=3.1.0",
     "pymongo>=4.16.0",
