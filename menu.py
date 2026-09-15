@@ -27,6 +27,7 @@ def menu() -> None:
 
         # Indoor games 2025/2026
         with st.expander("Hala", expanded=True, icon=":material/sports_soccer:"):
+            st.page_link("pages/games_26_27.py", label="2026/2027")
             st.page_link("pages/games_25_26.py", label="2025/2026")
 
         # Admin menu

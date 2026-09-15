@@ -1,3 +1,5 @@
+import datetime
+
 import streamlit as st
 
 from menu import menu_with_redirect
@@ -32,6 +34,7 @@ with st.expander("Transakcje", expanded=True):
     cols[1].write(f"Bilans transakcji: {sum([t.value for t in transactions])} zł")
     transactions_to_show = [
         {
+            "Data": t.date,
             "Co?": t.name,
             "Ile?": f"{t.value} zł",
         }
@@ -42,10 +45,12 @@ with st.expander("Transakcje", expanded=True):
 with st.form("add_transaction_form"):
     st.subheader("Dodaj transakcję", text_alignment="center")
     name = st.text_input("Nazwa transakcji", max_chars=255).strip()
+    date = st.date_input("Data", format="DD.MM.YYYY")
+    dt = datetime.datetime.combine(date, datetime.time(hour=12))
     value = st.number_input("Kwota (zł)", step=1)
     submit = st.form_submit_button("Dodaj")
     if submit:
-        transaction = Transaction(name=name, value=value)
+        transaction = Transaction(datetime=dt, name=name, value=value)
         with execute_with_toast(f"Transakcja '{transaction.name}' dodana!"):
             transactions_repo.save(transaction)
         st.rerun()
@@ -57,6 +62,7 @@ def update_edit_transaction_form() -> None:
     if not st.session_state.edit_transaction:
         return
     transaction: Transaction = st.session_state["edit_transaction"]
+    st.session_state.edit_date = transaction.datetime
     st.session_state.edit_value = transaction.value
 
 
@@ -71,11 +77,13 @@ with st.container(border=True):
         on_change=update_edit_transaction_form,
     )
     if transaction_to_edit:
+        date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
+        dt = datetime.datetime.combine(date, datetime.time(hour=12))
+        transaction_to_edit.datetime = dt
         transaction_to_edit.value = st.number_input(
             "Kwota (zł)",
             key="edit_value",
-            min_value=0,
-            max_value=None,
+            step=1,
         )
         submit = st.button("Zapisz")
         if submit:

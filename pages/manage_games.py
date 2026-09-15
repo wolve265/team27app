@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from menu import menu_with_redirect
-from utils.db.games import Game, Season, game_column_config_mapping, get_games_repo
+from utils.db.games import Game, game_column_config_mapping, get_games_repo
 from utils.db.players import get_players_repo
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
@@ -33,14 +33,13 @@ with st.expander("Gierki", expanded=True):
         st.dataframe(
             data=games_df,
             hide_index=True,
-            column_order=["datetime", "cost_per_player", "players_count"],
+            column_order=["datetime", "cost", "cost_per_player", "players_count"],
             column_config=game_column_config_mapping,
         )
 
 
 with st.form("add_game_form"):
     st.subheader("Dodaj gierkę", text_alignment="center")
-    season = st.selectbox("Wybierz sezon", options=Season.list_all())
     date = st.date_input("Data", format="DD.MM.YYYY")
     dt = datetime.datetime.combine(date, datetime.time(hour=12))
     cost = st.number_input("Koszt gierki (zł)", value=150, min_value=0, max_value=None)
@@ -54,7 +53,6 @@ with st.form("add_game_form"):
     if submit:
         game = Game(
             datetime=dt,
-            season=Season(season),
             cost=cost,
             cost_per_player=cost_per_player,
             players_ids=[str(p.id) for p in add_players],
@@ -70,8 +68,9 @@ def update_edit_game_form() -> None:
     if not st.session_state.edit_game:
         return
     game: Game = st.session_state.edit_game
-    st.session_state.edit_season = game.season
-    st.session_state.edit_cost = game.cost_per_player
+    st.session_state.edit_date = game.datetime
+    st.session_state.edit_cost = game.cost
+    st.session_state.edit_cost_per_player = game.cost_per_player
     st.session_state.edit_players = [p for p in players if str(p.id) in game.players_ids]
 
 
@@ -86,14 +85,15 @@ with st.container(border=True):
         on_change=update_edit_game_form,
     )
     if game_to_edit:
-        game_to_edit.season = st.selectbox(
-            "Wybierz sezon",
-            key="edit_season",
-            options=Season.list_all(),
+        date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
+        dt = datetime.datetime.combine(date, datetime.time(hour=12))
+        game_to_edit.datetime = dt
+        game_to_edit.cost = st.number_input(
+            "Koszt gierki (zł)", key="edit_cost", min_value=0, max_value=None
         )
         game_to_edit.cost_per_player = st.number_input(
-            "Koszt (zł)",
-            key="edit_cost",
+            "Koszt za gracza (zł)",
+            key="edit_cost_per_player",
             min_value=0,
             max_value=None,
         )

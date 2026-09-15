@@ -1,3 +1,5 @@
+import datetime
+
 import streamlit as st
 
 from menu import menu_with_redirect
@@ -27,6 +29,7 @@ with st.expander("Płatności", expanded=True):
     cols[1].write(f"Suma płatności: {sum([pay.value for pay in payments])} zł")
     payments_to_show = [
         {
+            "Data": pay.date,
             "Kto": (player := next(p for p in players if str(p.id) == pay.player_id)).fullname,
             "Ile": f"{pay.value} zł",
         }
@@ -42,10 +45,12 @@ with st.form("add_payment_form"):
         options=players,
         format_func=lambda p: p.fullname,
     )
+    date = st.date_input("Data", format="DD.MM.YYYY")
+    dt = datetime.datetime.combine(date, datetime.time(hour=12))
     value = st.number_input("Kwota (zł)", min_value=0, max_value=None)
     submit = st.form_submit_button("Dodaj")
     if submit and player:
-        payment = Payment(player_id=str(player.id), value=value)
+        payment = Payment(datetime=dt, player_id=str(player.id), value=value)
         with execute_with_toast(f"Płatność '{payment.format(players)}' dodana!"):
             payments_repo.save(payment)
         st.rerun()

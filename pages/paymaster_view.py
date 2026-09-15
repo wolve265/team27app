@@ -1,3 +1,5 @@
+import datetime
+
 import streamlit as st
 
 from menu import menu_with_redirect
@@ -69,9 +71,13 @@ with payments_tab:
 
 with funds_tab:
     all_games_cost = sum([g.cost for g in games])
-    games_transaction = Transaction(name="Wynajem hali", value=-all_games_cost)
+    games_transaction = Transaction(
+        datetime=datetime.datetime.now(), name="Wynajem hali", value=-all_games_cost
+    )
     payments_transaction = Transaction(
-        name="Wpłaty od zawodników", value=all_players_payments_current
+        datetime=datetime.datetime.now(),
+        name="Wpłaty od zawodników",
+        value=all_players_payments_current,
     )
     all_transactions = transactions + [games_transaction, payments_transaction]
     revenues = [t for t in all_transactions if t.is_revenue()]
@@ -88,7 +94,14 @@ with funds_tab:
     cols[1].write(f"Suma wydatków: **{expenses_sum} zł**")
     cols[2].write(f"Saldo zespołu: :{all_balance_color}[{all_balance} zł]")
 
-    funds_to_show = [{"Nazwa": t.name, "Koszt": f"{t.value} zł"} for t in all_transactions]
+    funds_to_show = [
+        {
+            "Data": t.date,
+            "Nazwa": t.name,
+            "Koszt": f"{t.value} zł",
+        }
+        for t in all_transactions
+    ]
     st.dataframe(funds_to_show)
 
 
@@ -137,7 +150,11 @@ with notify_tab:
                 if i in selected_rows:
                     with execute_with_toast(f"Zawodnik '{pi.player.fullname}' zapłacił!"):
                         payments_repo.save(
-                            Payment(player_id=str(pi.player.id), value=abs(pi.balance))
+                            Payment(
+                                datetime=datetime.datetime.now(),
+                                player_id=str(pi.player.id),
+                                value=abs(pi.balance),
+                            )
                         )
             st.rerun()
 

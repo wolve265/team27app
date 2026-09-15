@@ -1,14 +1,28 @@
-from pydantic import BaseModel
+import datetime as dt
+
+from pydantic import BaseModel, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_db
 from utils.db.players import Player
+from utils.db.seasons import Season, Seasons
 
 
 class Payment(BaseModel):
     id: PydanticObjectId | None = None
+    datetime: dt.datetime
     player_id: str
     value: int
+
+    @computed_field(repr=False)
+    @property
+    def date(self) -> str:
+        return self.datetime.strftime("%d.%m.%Y")
+
+    @computed_field(repr=False)
+    @property
+    def season(self) -> Season:
+        return Seasons.from_datetime(self.datetime)
 
     def format(self, players: list[Player]) -> str:
         player = next(p for p in players if str(p.id) == self.player_id)

@@ -8,7 +8,7 @@ from utils.db.seasons import Seasons
 from utils.pages import set_page
 from utils.player_info import PlayerInfo
 
-SEASON = Seasons.INDOOR_25_26
+SEASON = Seasons.INDOOR_26_27
 PAGE_NAME = SEASON.name
 set_page(PAGE_NAME)
 
@@ -28,6 +28,7 @@ for g in games:
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 players = [p for p in players if str(p.id) in players_ids_in_season]
 payments = list(payments_repo.find_by(SEASON.get_datetime_query()))
+
 
 games_tab, players_tab = st.tabs(["Gierki", "Zawodnicy"])
 

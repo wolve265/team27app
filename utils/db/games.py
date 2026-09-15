@@ -1,6 +1,4 @@
 import datetime as dt
-from enum import StrEnum
-from typing import Self
 
 import streamlit as st
 from pydantic import BaseModel, computed_field
@@ -8,6 +6,7 @@ from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_db
 from utils.db.players import Player
+from utils.db.seasons import Season, Seasons
 
 game_column_config_mapping = {
     "id": None,
@@ -20,18 +19,9 @@ game_column_config_mapping = {
 }
 
 
-class Season(StrEnum):
-    INDOOR_25_26 = "indoor_25_26"
-
-    @classmethod
-    def list_all(cls) -> list[Self]:
-        return [e for e in cls]
-
-
 class Game(BaseModel):
     id: PydanticObjectId | None = None
     datetime: dt.datetime
-    season: Season
     cost: int
     cost_per_player: int
     players_ids: list[str]
@@ -40,6 +30,11 @@ class Game(BaseModel):
     @property
     def date(self) -> str:
         return self.datetime.strftime("%d.%m.%Y")
+
+    @computed_field(repr=False)
+    @property
+    def season(self) -> Season:
+        return Seasons.from_datetime(self.datetime)
 
     @computed_field(repr=False)
     @property
