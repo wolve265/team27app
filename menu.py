@@ -70,7 +70,10 @@ def menu() -> None:
         SocialMediaIcons(social_media_links).render()
 
 
-def menu_with_redirect(roles: list[UserRole] = UserRole.list_all_with_superadmin()) -> None:
+default_roles = UserRole.list_all_with_superadmin()
+
+
+def menu_with_redirect(roles: list[UserRole] = default_roles) -> None:
     """Redirect users to the main page if not correct role.
 
     Otherwise continue to render the navigation menu.

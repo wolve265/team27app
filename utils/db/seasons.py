@@ -15,8 +15,8 @@ class Season:
 def create_season(year_start: int, year_end: int) -> Season:
     return Season(
         name=f"Hala {year_start}/{year_end}",
-        start=dt.datetime(year=year_start, month=9, day=1),
-        end=dt.datetime(year=year_end, month=4, day=30),
+        start=dt.datetime(year=year_start, month=9, day=1, tzinfo=dt.UTC),
+        end=dt.datetime(year=year_end, month=4, day=30, tzinfo=dt.UTC),
     )
 
 

@@ -72,10 +72,10 @@ with payments_tab:
 with funds_tab:
     all_games_cost = sum([g.cost for g in games])
     games_transaction = Transaction(
-        datetime=datetime.datetime.now(), name="Wynajem hali", value=-all_games_cost
+        datetime=datetime.datetime.now(tz=datetime.UTC), name="Wynajem hali", value=-all_games_cost
     )
     payments_transaction = Transaction(
-        datetime=datetime.datetime.now(),
+        datetime=datetime.datetime.now(tz=datetime.UTC),
         name="Wpłaty od zawodników",
         value=all_players_payments_current,
     )
@@ -151,7 +151,7 @@ with notify_tab:
                     with execute_with_toast(f"Zawodnik '{pi.player.fullname}' zapłacił!"):
                         payments_repo.save(
                             Payment(
-                                datetime=datetime.datetime.now(),
+                                datetime=datetime.datetime.now(tz=datetime.UTC),
                                 player_id=str(pi.player.id),
                                 value=abs(pi.balance),
                             )

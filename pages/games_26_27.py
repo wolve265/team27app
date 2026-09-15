@@ -41,7 +41,7 @@ with games_tab:
         players_infos_in_game = [
             PlayerInfo.from_player(p, games_since_this_one, payments) for p in players_in_game
         ]
-        game_paid = all([pi.game_paid for pi in players_infos_in_game])
+        game_paid = all(pi.game_paid for pi in players_infos_in_game)
         with st.expander(
             f"{game.date} ({':green[opłacona]' if game_paid else ':red[nieopłacona]'})",
             expanded=expanded,

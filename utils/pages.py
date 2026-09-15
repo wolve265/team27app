@@ -33,7 +33,7 @@ class ToastNotifications:
                 st.toast(notification.msg, icon=notification.icon)
 
         if ToastNotifications.NAME not in st.session_state:
-            st.session_state[ToastNotifications.NAME] = list()
+            st.session_state[ToastNotifications.NAME] = []
             return
 
     @staticmethod
@@ -63,7 +63,7 @@ def execute_with_toast(
     """
     try:
         yield
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         ToastNotifications.add(msg=str(e), icon=error_icon)
     else:
         ToastNotifications.add(msg=success_msg, icon=success_icon)
