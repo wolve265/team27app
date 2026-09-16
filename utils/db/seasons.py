@@ -29,8 +29,8 @@ class Seasons:
         return [cls.INDOOR_25_26, cls.INDOOR_26_27]
 
     @staticmethod
-    def from_datetime(dt: dt.datetime) -> Season:
+    def from_datetime(datetime: dt.datetime) -> Season:
         for season in Seasons.list_all():
-            if season.start <= dt <= season.end:
+            if season.start <= datetime <= season.end:
                 return season
-        raise ValueError(f"No season found for datetime {dt}")
+        raise ValueError(f"No season found for datetime {datetime}")

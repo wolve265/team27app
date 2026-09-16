@@ -46,7 +46,7 @@ with st.form("add_transaction_form"):
     st.subheader("Dodaj transakcję", text_alignment="center")
     name = st.text_input("Nazwa transakcji", max_chars=255).strip()
     date = st.date_input("Data", format="DD.MM.YYYY")
-    dt = datetime.datetime.combine(date, datetime.time(hour=12))
+    dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
     value = st.number_input("Kwota (zł)", step=1)
     submit = st.form_submit_button("Dodaj")
     if submit:
@@ -78,7 +78,7 @@ with st.container(border=True):
     )
     if transaction_to_edit:
         date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
-        dt = datetime.datetime.combine(date, datetime.time(hour=12))
+        dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
         transaction_to_edit.datetime = dt
         transaction_to_edit.value = st.number_input(
             "Kwota (zł)",

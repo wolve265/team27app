@@ -41,7 +41,7 @@ with st.expander("Gierki", expanded=True):
 with st.form("add_game_form"):
     st.subheader("Dodaj gierkę", text_alignment="center")
     date = st.date_input("Data", format="DD.MM.YYYY")
-    dt = datetime.datetime.combine(date, datetime.time(hour=12))
+    dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
     cost = st.number_input("Koszt gierki (zł)", value=150, min_value=0, max_value=None)
     cost_per_player = st.number_input("Koszt za gracza (zł)", value=15, min_value=0, max_value=None)
     add_players = st.multiselect(
@@ -86,7 +86,7 @@ with st.container(border=True):
     )
     if game_to_edit:
         date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
-        dt = datetime.datetime.combine(date, datetime.time(hour=12))
+        dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
         game_to_edit.datetime = dt
         game_to_edit.cost = st.number_input(
             "Koszt gierki (zł)", key="edit_cost", min_value=0, max_value=None

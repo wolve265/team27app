@@ -46,7 +46,7 @@ with st.form("add_payment_form"):
         format_func=lambda p: p.fullname,
     )
     date = st.date_input("Data", format="DD.MM.YYYY")
-    dt = datetime.datetime.combine(date, datetime.time(hour=12))
+    dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
     value = st.number_input("Kwota (zł)", min_value=0, max_value=None)
     submit = st.form_submit_button("Dodaj")
     if submit and player:

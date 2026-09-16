@@ -11,7 +11,7 @@ def get_client() -> pymongo.MongoClient[Any]:
 
     Uses `st.cache_resource` to only run once.
     """
-    return pymongo.MongoClient(**st.secrets["mongo"])
+    return pymongo.MongoClient(tz_aware=True, **st.secrets["mongo"])
 
 
 @st.cache_resource
