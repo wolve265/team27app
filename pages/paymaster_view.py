@@ -6,6 +6,7 @@ from menu import menu_with_redirect
 from utils.db.games import get_games_repo
 from utils.db.payments import Payment, get_payments_repo
 from utils.db.players import get_players_repo
+from utils.db.seasons import Seasons, merge_seasons
 from utils.db.transactions import Transaction, get_transactions_repo
 from utils.db.users import UserRole
 from utils.fb.api import Api
@@ -19,18 +20,30 @@ set_page(PAGE_NAME)
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 ToastNotifications.render()
 
+seasons = st.pills(
+    "Sezony",
+    key="selected_seasons",
+    options=sorted(Seasons.list_all(), key=lambda s: s.end, reverse=True),
+    selection_mode="multi",
+    default=Seasons.list_all(),
+    format_func=lambda s: s.name,
+    persist_state="session",
+)
+season = merge_seasons(seasons)
 
 transactions_repo = get_transactions_repo()
 games_repo = get_games_repo()
 payments_repo = get_payments_repo()
 players_repo = get_players_repo()
 
-transactions = list(transactions_repo.find_by({}))
-games = sorted(games_repo.find_by({}), key=lambda g: g.datetime, reverse=True)
+transactions = list(transactions_repo.find_by(season.get_datetime_query()))
+games = sorted(
+    games_repo.find_by(season.get_datetime_query()), key=lambda g: g.datetime, reverse=True
+)
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
-payments = list(payments_repo.find_by({}))
+payments = list(payments_repo.find_by(season.get_datetime_query()))
 
-avg_game_cost = round(sum([g.cost_per_player for g in games]) / len(games))
+avg_game_cost = round(sum([g.cost_per_player for g in games]) / len(games)) if len(games) else 1
 players_infos = [PlayerInfo.from_player(p, games, payments) for p in players]
 
 tab_names = [
@@ -70,16 +83,23 @@ with payments_tab:
 
 
 with funds_tab:
-    all_games_cost = sum([g.cost for g in games])
-    games_transaction = Transaction(
-        datetime=datetime.datetime.now(tz=datetime.UTC), name="Wynajem hali", value=-all_games_cost
-    )
-    payments_transaction = Transaction(
-        datetime=datetime.datetime.now(tz=datetime.UTC),
-        name="Wpłaty od zawodników",
-        value=all_players_payments_current,
-    )
-    all_transactions = transactions + [games_transaction, payments_transaction]
+    all_transactions = transactions
+    for s in seasons:
+        all_games_cost_in_season = sum(
+            [g.cost for g in games if Seasons.from_datetime(g.datetime) == s]
+        )
+        games_transaction = Transaction(
+            datetime=s.end, name=f"Wynajem ({s.name.lower()})", value=-all_games_cost_in_season
+        )
+        all_players_payments_in_season = sum(
+            [pay.value for pay in payments if Seasons.from_datetime(pay.datetime) == s]
+        )
+        payments_transaction = Transaction(
+            datetime=s.end,
+            name=f"Wpłaty od zawodników ({s.name.lower()})",
+            value=all_players_payments_in_season,
+        )
+        all_transactions.extend([games_transaction, payments_transaction])
     revenues = [t for t in all_transactions if t.is_revenue()]
     expenses = [t for t in all_transactions if t.is_expense()]
 
@@ -100,7 +120,7 @@ with funds_tab:
             "Nazwa": t.name,
             "Koszt": f"{t.value} zł",
         }
-        for t in all_transactions
+        for t in sorted(all_transactions, key=lambda x: x.date, reverse=True)
     ]
     st.dataframe(funds_to_show)
 

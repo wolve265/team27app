@@ -3,6 +3,7 @@ import datetime
 import streamlit as st
 
 from menu import menu_with_redirect
+from utils.db.seasons import Seasons, merge_seasons
 from utils.db.transactions import Transaction, get_transactions_repo
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
@@ -13,11 +14,24 @@ set_page(PAGE_NAME)
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 ToastNotifications.render()
 
+season = merge_seasons(
+    st.pills(
+        "Sezony",
+        key="selected_seasons",
+        options=sorted(Seasons.list_all(), key=lambda s: s.end, reverse=True),
+        selection_mode="multi",
+        default=Seasons.list_all(),
+        format_func=lambda s: s.name,
+        persist_state="session",
+    )
+)
 
 transactions_repo = get_transactions_repo()
 
 transactions = sorted(
-    transactions_repo.find_by({}), key=lambda transaction: str(transaction.id), reverse=True
+    transactions_repo.find_by(season.get_datetime_query()),
+    key=lambda transaction: str(transaction.id),
+    reverse=True,
 )
 expenses = [t for t in transactions if t.is_expense()]
 revenues = [t for t in transactions if t.is_revenue()]

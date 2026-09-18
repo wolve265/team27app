@@ -6,6 +6,7 @@ import streamlit as st
 from menu import menu_with_redirect
 from utils.db.games import Game, game_column_config_mapping, get_games_repo
 from utils.db.players import get_players_repo
+from utils.db.seasons import Seasons, merge_seasons
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
 
@@ -15,11 +16,25 @@ set_page(PAGE_NAME)
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 ToastNotifications.render()
 
+season = merge_seasons(
+    st.pills(
+        "Sezony",
+        key="selected_seasons",
+        options=sorted(Seasons.list_all(), key=lambda s: s.end, reverse=True),
+        selection_mode="multi",
+        default=Seasons.list_all(),
+        format_func=lambda s: s.name,
+        persist_state="session",
+    )
+)
+
 
 games_repo = get_games_repo()
 players_repo = get_players_repo()
 
-games = sorted(games_repo.find_by({}), key=lambda g: g.datetime, reverse=True)
+games = sorted(
+    games_repo.find_by(season.get_datetime_query()), key=lambda g: g.datetime, reverse=True
+)
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
