@@ -12,7 +12,7 @@ from utils.fb.api import Api
 from utils.fb.notifications import send_cash_notification
 from utils.pages import ToastNotifications, execute_with_toast, set_page
 from utils.player_info import PlayerInfo
-from utils.seasons import Seasons, merge_seasons
+from utils.seasons import Seasons, merge_seasons, st_seasons
 
 PAGE_NAME = "Widok skarbnika"
 set_page(PAGE_NAME)
@@ -20,15 +20,7 @@ set_page(PAGE_NAME)
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 ToastNotifications.render()
 
-seasons = st.pills(
-    "Sezony",
-    key="selected_seasons",
-    options=sorted(Seasons.list_all(), key=lambda s: s.end, reverse=True),
-    selection_mode="multi",
-    default=Seasons.list_all(),
-    format_func=lambda s: s.name,
-    persist_state="session",
-)
+seasons = st_seasons()
 season = merge_seasons(seasons)
 
 transactions_repo = get_transactions_repo()

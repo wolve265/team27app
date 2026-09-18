@@ -6,7 +6,7 @@ from menu import menu_with_redirect
 from utils.db.transactions import Transaction, get_transactions_repo
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
-from utils.seasons import Seasons, merge_seasons
+from utils.seasons import merge_seasons, st_seasons
 
 PAGE_NAME = "Zarządzanie transakcjami"
 set_page(PAGE_NAME)
@@ -14,17 +14,7 @@ set_page(PAGE_NAME)
 menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
 ToastNotifications.render()
 
-season = merge_seasons(
-    st.pills(
-        "Sezony",
-        key="selected_seasons",
-        options=sorted(Seasons.list_all(), key=lambda s: s.end, reverse=True),
-        selection_mode="multi",
-        default=Seasons.list_all(),
-        format_func=lambda s: s.name,
-        persist_state="session",
-    )
-)
+season = merge_seasons(st_seasons())
 
 transactions_repo = get_transactions_repo()
 

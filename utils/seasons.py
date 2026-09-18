@@ -2,6 +2,8 @@ import datetime as dt
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+import streamlit as st
+
 
 @dataclass(frozen=True)
 class Season:
@@ -30,15 +32,6 @@ def _create_season(year_start: int, year_end: int, name: str | None = None) -> S
     )
 
 
-def merge_seasons(seasons: Sequence[Season]) -> Season:
-    if not seasons:
-        return _create_season(2025, 2025, name="Brak sezonu")
-    start = min(s.start for s in seasons)
-    end = max(s.end for s in seasons)
-    name = f"Hala {start.year}/{end.year}"
-    return Season(name=name, start=start, end=end)
-
-
 class Seasons:
     INDOOR_25_26 = _create_season(2025, 2026)
     INDOOR_26_27 = _create_season(2026, 2027)
@@ -55,3 +48,24 @@ class Seasons:
             if season.start <= datetime <= season.end:
                 return season
         raise ValueError(f"No season found for datetime {datetime}")
+
+
+def merge_seasons(seasons: Sequence[Season]) -> Season:
+    if not seasons:
+        return _create_season(2025, 2025, name="Brak sezonu")
+    start = min(s.start for s in seasons)
+    end = max(s.end for s in seasons)
+    name = f"Hala {start.year}/{end.year}"
+    return Season(name=name, start=start, end=end)
+
+
+def st_seasons() -> list[Season]:
+    return st.pills(
+        "Sezony",
+        key="selected_seasons",
+        options=sorted(Seasons.list_all(), key=lambda s: s.end, reverse=True),
+        selection_mode="multi",
+        default=Seasons.list_all(),
+        format_func=lambda s: s.name,
+        persist_state="session",
+    )
