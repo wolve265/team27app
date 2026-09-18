@@ -66,6 +66,7 @@ def update_edit_payment_form() -> None:
     if not st.session_state.edit_payment:
         return
     payment: Payment = st.session_state["edit_payment"]
+    st.session_state.edit_date = payment.datetime
     st.session_state.edit_value = payment.value
 
 
@@ -80,6 +81,9 @@ with st.container(border=True):
         on_change=update_edit_payment_form,
     )
     if payment_to_edit:
+        date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
+        dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
+        payment_to_edit.datetime = dt
         payment_to_edit.value = st.number_input(
             "Kwota (zł)",
             key="edit_value",
