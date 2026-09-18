@@ -5,9 +5,9 @@ import streamlit as st
 from menu import menu_with_redirect
 from utils.db.payments import Payment, get_payments_repo
 from utils.db.players import get_players_repo
-from utils.db.seasons import Seasons, merge_seasons
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
+from utils.seasons import Seasons, merge_seasons
 
 PAGE_NAME = "Zarządzanie płatnościami"
 set_page(PAGE_NAME)

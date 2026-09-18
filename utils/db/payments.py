@@ -5,7 +5,7 @@ from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_db
 from utils.db.players import Player
-from utils.db.seasons import Season, Seasons
+from utils.seasons import Season, Seasons
 
 
 class Payment(BaseModel):

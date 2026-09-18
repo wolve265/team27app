@@ -4,9 +4,9 @@ from menu import menu_with_redirect
 from utils.db.games import get_games_repo
 from utils.db.payments import get_payments_repo
 from utils.db.players import get_players_repo
-from utils.db.seasons import Seasons
 from utils.pages import set_page
 from utils.player_info import PlayerInfo
+from utils.seasons import Seasons
 
 SEASON = Seasons.INDOOR_26_27
 PAGE_NAME = SEASON.name
