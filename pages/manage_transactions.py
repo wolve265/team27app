@@ -66,6 +66,7 @@ def update_edit_transaction_form() -> None:
     if not st.session_state.edit_transaction:
         return
     transaction: Transaction = st.session_state["edit_transaction"]
+    st.session_state.edit_name = transaction.name
     st.session_state.edit_date = transaction.datetime
     st.session_state.edit_value = transaction.value
 
@@ -81,6 +82,9 @@ with st.container(border=True):
         on_change=update_edit_transaction_form,
     )
     if transaction_to_edit:
+        transaction_to_edit.name = st.text_input(
+            "Nazwa transakcji", key="edit_name", max_chars=255
+        ).strip()
         date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
         dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
         transaction_to_edit.datetime = dt
