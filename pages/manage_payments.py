@@ -66,6 +66,7 @@ def update_edit_payment_form() -> None:
     if not st.session_state.edit_payment:
         return
     payment: Payment = st.session_state["edit_payment"]
+    st.session_state.edit_player = next(p for p in players if str(p.id) in payment.player_id)
     st.session_state.edit_date = payment.datetime
     st.session_state.edit_value = payment.value
 
@@ -81,8 +82,17 @@ with st.container(border=True):
         on_change=update_edit_payment_form,
     )
     if payment_to_edit:
+        player = st.selectbox(
+            "Wybierz zawodnika",
+            key="edit_player",
+            index=None,
+            options=players,
+            format_func=lambda p: p.fullname,
+        )
         date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
         dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
+        if player:
+            payment_to_edit.player_id = str(player.id)
         payment_to_edit.datetime = dt
         payment_to_edit.value = st.number_input(
             "Kwota (zł)",
