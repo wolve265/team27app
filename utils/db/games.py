@@ -21,9 +21,9 @@ game_column_config_mapping = {
 
 class Game(BaseModel):
     id: PydanticObjectId | None = None
-    datetime: dt.datetime
     cost: int
     cost_per_player: int
+    datetime: dt.datetime
     players_ids: list[str]
 
     @computed_field(repr=False)

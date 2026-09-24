@@ -21,9 +21,9 @@ player_column_config_mapping = {
 class Player(BaseModel):
     id: PydanticObjectId | None = None
     name: str
+    psid: str
     surname: str
     team27_number: int = Field(ge=0)
-    psid: str
     # user_email: EmailStr
     user_email: str
 
