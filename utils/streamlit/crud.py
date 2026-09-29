@@ -15,6 +15,7 @@ class CrudSpec[ModelT: BaseModel]:
     save: Callable[[ModelT], Any]
     delete: Callable[[ModelT], Any]
     format_func: Callable[[ModelT], str] = str
+    add_values: Mapping[str, Any] | None = None
     field_renderers: Mapping[str, FieldRenderer] | None = None
     exclude: Sequence[str] = ("id",)
     can_edit: Callable[[ModelT], bool] = lambda _obj: True
@@ -33,6 +34,7 @@ def render_add_form[ModelT: BaseModel](
         data = pydantic_input(
             spec.model,
             key=f"{key}_fields",
+            values=spec.add_values,
             field_renderers=spec.field_renderers,
             exclude=spec.exclude,
         )
