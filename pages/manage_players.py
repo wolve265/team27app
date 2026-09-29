@@ -9,6 +9,7 @@ from utils.db.players import (
 )
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
+from utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form, render_edit_form
 
 PAGE_NAME = "Zarządzanie zawodnikami"
 set_page(PAGE_NAME)
@@ -20,6 +21,13 @@ ToastNotifications.render()
 players_repo = get_players_repo()
 
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
+players_crud = CrudSpec(
+    model=Player,
+    objects=players,
+    save=players_repo.save,
+    delete=players_repo.delete,
+    format_func=lambda player: player.fullname,
+)
 
 
 with st.expander("Zawodnicy", expanded=True):
@@ -43,110 +51,37 @@ with st.expander("Zawodnicy", expanded=True):
         )
 
 
-with st.form("add_player_form"):
-    st.subheader("Dodaj zawodnika", text_alignment="center")
-    name = st.text_input("Imię", max_chars=255).strip()
-    surname = st.text_input("Nazwisko", max_chars=255).strip()
-    team27_number = st.number_input(
-        "Numer w Team 27",
-        key="add_team27_number",
-        min_value=0,
-        max_value=99,
-        step=1,
-        help="Wpisz 0, jeśli zawodnik nie jest członkiem Team 27.",
-    )
-    psid = st.text_input(
-        "PSID",
-        key="add_psid",
-        max_chars=31,
-        help="Zostaw puste, jeśli zawodnik nie jest połączony z systemem powiadomień.",
-    ).strip()
-    user_email = st.text_input(
-        "Email użytkownika",
-        key="add_user_email",
-        max_chars=255,
-        help="Zostaw puste, jeśli zawodnik nie jest połączony z żadnym użytkownikiem.",
-    ).strip()
-    submit = st.form_submit_button("Dodaj")
-    if submit:
-        if not name:
-            st.error("Imię jest wymagane!")
-        elif not surname:
-            st.error("Nazwisko jest wymagane!")
-        else:
-            player = Player(
-                name=name,
-                surname=surname,
-                team27_number=team27_number,
-                psid=psid,
-                user_email=user_email,
-            )
-            with execute_with_toast(f"Zawodnik '{player.fullname}' dodany!"):
-                players_repo.save(player)
-            st.rerun()
+new_player = render_add_form(
+    players_crud,
+    key="player_add",
+    title="Dodaj zawodnika",
+)
+if new_player:
+    with execute_with_toast(f"Zawodnik '{new_player.fullname}' dodany!"):
+        players_repo.save(new_player)
+    st.rerun()
 
 
-def update_edit_player_form() -> None:
-    if "edit_player" not in st.session_state:
-        return
-    if not st.session_state.edit_player:
-        return
-    player: Player = st.session_state["edit_player"]
-    st.session_state.edit_team27_number = player.team27_number
-    st.session_state.edit_psid = player.psid
-    st.session_state.edit_user_email = player.user_email
+edited_player = render_edit_form(
+    players_crud,
+    key="player_edit",
+    title="Edytuj zawodnika",
+    select_label="Wybierz zawodnika",
+)
+if edited_player:
+    with execute_with_toast(f"Zawodnik '{edited_player.fullname}' zedytowany!"):
+        players_repo.save(edited_player)
+    st.rerun()
 
 
-with st.container(border=True):
-    st.subheader("Edytuj zawodnika", text_alignment="center")
-    player_to_edit = st.selectbox(
-        "Wybierz zawodnika",
-        index=None,
-        format_func=lambda p: p.fullname,
-        key="edit_player",
-        options=players,
-        on_change=update_edit_player_form,
-    )
-    if player_to_edit:
-        player_to_edit.team27_number = st.number_input(
-            "Numer w Team 27",
-            key="edit_team27_number",
-            min_value=0,
-            max_value=99,
-            step=1,
-            help="Wpisz 0, jeśli zawodnik nie jest członkiem Team 27.",
-        )
-        player_to_edit.psid = st.text_input(
-            "PSID",
-            key="edit_psid",
-            max_chars=31,
-            help="Zostaw puste, jeśli zawodnik nie jest połączony z systemem powiadomień.",
-        ).strip()
-        player_to_edit.user_email = st.text_input(
-            "Email użytkownika",
-            key="edit_user_email",
-            max_chars=255,
-            help="Zostaw puste, jeśli zawodnik nie jest połączony z żadnym użytkownikiem.",
-        ).strip()
-        submit = st.button("Zapisz")
-        if submit:
-            with execute_with_toast(f"Zawodnik '{player_to_edit.fullname}' zedytowany!"):
-                players_repo.save(player_to_edit)
-            st.rerun()
-
-
-with st.container(border=True):
-    st.subheader("Usuń zawodnika", text_alignment="center")
-    players_to_delete = st.multiselect(
-        "Wybierz zawodnika/zawodników",
-        options=players,
-        format_func=lambda p: p.fullname,
-        key="delete_player",
-    )
-    if players_to_delete:
-        submit = st.button("Usuń")
-        if submit:
-            for player_to_delete in players_to_delete:
-                with execute_with_toast(f"Zawodnik '{player_to_delete.fullname}' usunięty!"):
-                    players_repo.delete(player_to_delete)
-            st.rerun()
+deleted_players = render_delete_form(
+    players_crud,
+    key="player_delete",
+    title="Usuń zawodnika",
+    select_label="Wybierz zawodnika/zawodników",
+)
+if deleted_players:
+    for player_to_delete in deleted_players:
+        with execute_with_toast(f"Zawodnik '{player_to_delete.fullname}' usunięty!"):
+            players_repo.delete(player_to_delete)
+    st.rerun()

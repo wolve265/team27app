@@ -1,5 +1,3 @@
-import datetime
-
 import streamlit as st
 
 from menu import menu_with_redirect
@@ -7,6 +5,7 @@ from utils.db.transactions import Transaction, get_transactions_repo
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
 from utils.seasons import merge_seasons, st_seasons
+from utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form, render_edit_form
 
 PAGE_NAME = "Zarządzanie transakcjami"
 set_page(PAGE_NAME)
@@ -22,6 +21,13 @@ transactions = sorted(
     transactions_repo.find_by(season.get_datetime_query()),
     key=lambda transaction: str(transaction.id),
     reverse=True,
+)
+transactions_crud = CrudSpec(
+    model=Transaction,
+    objects=transactions,
+    save=transactions_repo.save,
+    delete=transactions_repo.delete,
+    format_func=lambda transaction: transaction.name,
 )
 expenses = [t for t in transactions if t.is_expense()]
 revenues = [t for t in transactions if t.is_revenue()]
@@ -46,72 +52,37 @@ with st.expander("Transakcje", expanded=True):
     ]
     st.dataframe(transactions_to_show)
 
-with st.form("add_transaction_form"):
-    st.subheader("Dodaj transakcję", text_alignment="center")
-    name = st.text_input("Nazwa transakcji", max_chars=255).strip()
-    date = st.date_input("Data", format="DD.MM.YYYY")
-    dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
-    value = st.number_input("Kwota (zł)", step=1)
-    submit = st.form_submit_button("Dodaj")
-    if submit:
-        transaction = Transaction(datetime=dt, name=name, value=value)
-        with execute_with_toast(f"Transakcja '{transaction.name}' dodana!"):
-            transactions_repo.save(transaction)
-        st.rerun()
+new_transaction = render_add_form(
+    transactions_crud,
+    key="transaction_add",
+    title="Dodaj transakcję",
+)
+if new_transaction:
+    with execute_with_toast(f"Transakcja '{new_transaction.name}' dodana!"):
+        transactions_repo.save(new_transaction)
+    st.rerun()
 
 
-def update_edit_transaction_form() -> None:
-    if "edit_transaction" not in st.session_state:
-        return
-    if not st.session_state.edit_transaction:
-        return
-    transaction: Transaction = st.session_state["edit_transaction"]
-    st.session_state.edit_name = transaction.name
-    st.session_state.edit_date = transaction.datetime
-    st.session_state.edit_value = transaction.value
+edited_transaction = render_edit_form(
+    transactions_crud,
+    key="transaction_edit",
+    title="Edytuj transakcję",
+    select_label="Wybierz transakcję",
+)
+if edited_transaction:
+    with execute_with_toast(f"Transakcja '{edited_transaction.name}' zedytowana!"):
+        transactions_repo.save(edited_transaction)
+    st.rerun()
 
 
-with st.container(border=True):
-    st.subheader("Edytuj transakcję", text_alignment="center")
-    transaction_to_edit = st.selectbox(
-        "Wybierz transakcję",
-        index=None,
-        format_func=lambda t: t.name,
-        key="edit_transaction",
-        options=transactions,
-        on_change=update_edit_transaction_form,
-    )
-    if transaction_to_edit:
-        transaction_to_edit.name = st.text_input(
-            "Nazwa transakcji", key="edit_name", max_chars=255
-        ).strip()
-        date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
-        dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
-        transaction_to_edit.datetime = dt
-        transaction_to_edit.value = st.number_input(
-            "Kwota (zł)",
-            key="edit_value",
-            step=1,
-        )
-        submit = st.button("Zapisz")
-        if submit:
-            with execute_with_toast(f"Transakcja '{transaction_to_edit.name}' zedytowana!"):
-                transactions_repo.save(transaction_to_edit)
-            st.rerun()
-
-
-with st.container(border=True):
-    st.subheader("Usuń transakcję", text_alignment="center")
-    transactions_to_delete = st.multiselect(
-        "Wybierz transakcję/transakcje",
-        options=transactions,
-        format_func=lambda t: t.name,
-        key="delete_transactions",
-    )
-    if transactions_to_delete:
-        submit = st.button("Usuń")
-        if submit:
-            for transaction_to_delete in transactions_to_delete:
-                with execute_with_toast(f"Transakcja '{transaction_to_delete.name}' usunięta!"):
-                    transactions_repo.delete(transaction_to_delete)
-            st.rerun()
+deleted_transactions = render_delete_form(
+    transactions_crud,
+    key="transaction_delete",
+    title="Usuń transakcję",
+    select_label="Wybierz transakcję/transakcje",
+)
+if deleted_transactions:
+    for transaction_to_delete in deleted_transactions:
+        with execute_with_toast(f"Transakcja '{transaction_to_delete.name}' usunięta!"):
+            transactions_repo.delete(transaction_to_delete)
+    st.rerun()
