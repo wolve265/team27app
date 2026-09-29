@@ -9,6 +9,7 @@ from utils.db.players import get_players_repo
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
 from utils.seasons import merge_seasons, st_seasons
+from utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form, render_edit_form
 
 PAGE_NAME = "Zarządzanie gierkami"
 set_page(PAGE_NAME)
@@ -27,6 +28,35 @@ games = sorted(
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
+def render_game_players(_name, key, field, value):
+    selected_players = [player for player in players if str(player.id) in (value or [])]
+    return st.multiselect(
+        field.title or "Zawodnicy",
+        options=players,
+        default=selected_players,
+        key=key,
+        help=field.description,
+        format_func=lambda player: player.fullname,
+    )
+
+
+games_crud = CrudSpec(
+    model=Game,
+    objects=games,
+    save=games_repo.save,
+    delete=games_repo.delete,
+    format_func=lambda game: game.date,
+    add_values={
+        "datetime": datetime.datetime.now(tz=datetime.UTC).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        ),
+        "cost": 150,
+        "cost_per_player": 15,
+    },
+    field_renderers={"players_ids": render_game_players},
+)
+
+
 with st.expander("Gierki", expanded=True):
     st.button("Odśwież")
     dumped_games = [g.model_dump() for g in games]
@@ -42,91 +72,37 @@ with st.expander("Gierki", expanded=True):
         )
 
 
-with st.form("add_game_form"):
-    st.subheader("Dodaj gierkę", text_alignment="center")
-    date = st.date_input("Data", format="DD.MM.YYYY")
-    dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
-    cost = st.number_input("Koszt gierki (zł)", value=150, min_value=0, max_value=None)
-    cost_per_player = st.number_input("Koszt za gracza (zł)", value=15, min_value=0, max_value=None)
-    add_players = st.multiselect(
-        "Wybierz zawodników",
-        options=players,
-        format_func=lambda p: p.fullname,
-    )
-    submit = st.form_submit_button("Dodaj")
-    if submit:
-        game = Game(
-            datetime=dt,
-            cost=cost,
-            cost_per_player=cost_per_player,
-            players_ids=[str(p.id) for p in add_players],
-        )
-        with execute_with_toast(f"Gierka '{game.date}' dodana!"):
-            games_repo.save(game)
-        st.rerun()
+new_game = render_add_form(
+    games_crud,
+    key="game_add",
+    title="Dodaj gierkę",
+)
+if new_game:
+    with execute_with_toast(f"Gierka '{new_game.date}' dodana!"):
+        games_repo.save(new_game)
+    st.rerun()
 
 
-def update_edit_game_form() -> None:
-    if "edit_game" not in st.session_state:
-        return
-    if not st.session_state.edit_game:
-        return
-    game: Game = st.session_state.edit_game
-    st.session_state.edit_date = game.datetime
-    st.session_state.edit_cost = game.cost
-    st.session_state.edit_cost_per_player = game.cost_per_player
-    st.session_state.edit_players = [p for p in players if str(p.id) in game.players_ids]
+edited_game = render_edit_form(
+    games_crud,
+    key="game_edit",
+    title="Edytuj gierkę",
+    select_label="Wybierz gierkę",
+)
+if edited_game:
+    with execute_with_toast(f"Gierka '{edited_game.date}' zedytowana!"):
+        games_repo.save(edited_game)
+    st.rerun()
 
 
-with st.container(border=True):
-    st.subheader("Edytuj gierkę", text_alignment="center")
-    game_to_edit = st.selectbox(
-        "Wybierz gierkę",
-        index=None,
-        format_func=lambda g: g.date,
-        key="edit_game",
-        options=games,
-        on_change=update_edit_game_form,
-    )
-    if game_to_edit:
-        date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
-        dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
-        game_to_edit.datetime = dt
-        game_to_edit.cost = st.number_input(
-            "Koszt gierki (zł)", key="edit_cost", min_value=0, max_value=None
-        )
-        game_to_edit.cost_per_player = st.number_input(
-            "Koszt za gracza (zł)",
-            key="edit_cost_per_player",
-            min_value=0,
-            max_value=None,
-        )
-        edit_players = st.multiselect(
-            "Wybierz zawodników",
-            options=players,
-            default=st.session_state.edit_players,
-            format_func=lambda p: p.fullname,
-        )
-        game_to_edit.players_ids = [str(p.id) for p in edit_players]
-        submit = st.button("Zapisz")
-        if submit:
-            with execute_with_toast(f"Gierka '{game_to_edit.date}' zedytowana!"):
-                games_repo.save(game_to_edit)
-            st.rerun()
-
-
-with st.container(border=True):
-    st.subheader("Usuń gierkę", text_alignment="center")
-    games_to_delete = st.multiselect(
-        "Wybierz gierkę/gierki",
-        options=games,
-        format_func=lambda g: g.date,
-        key="delete_game",
-    )
-    if games_to_delete:
-        submit = st.button("Usuń")
-        if submit:
-            for game_to_delete in games_to_delete:
-                with execute_with_toast(f"Gierka '{game_to_delete.date}' usunięta!"):
-                    games_repo.delete(game_to_delete)
-            st.rerun()
+deleted_games = render_delete_form(
+    games_crud,
+    key="game_delete",
+    title="Usuń gierkę",
+    select_label="Wybierz gierkę/gierki",
+)
+if deleted_games:
+    for game_to_delete in deleted_games:
+        with execute_with_toast(f"Gierka '{game_to_delete.date}' usunięta!"):
+            games_repo.delete(game_to_delete)
+    st.rerun()

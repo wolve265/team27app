@@ -8,6 +8,7 @@ from utils.db.players import get_players_repo
 from utils.db.users import UserRole
 from utils.pages import ToastNotifications, execute_with_toast, set_page
 from utils.seasons import merge_seasons, st_seasons
+from utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form, render_edit_form
 
 PAGE_NAME = "Zarządzanie płatnościami"
 set_page(PAGE_NAME)
@@ -26,6 +27,38 @@ payments = sorted(
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
+def render_payment_player(_name, key, field, value):
+    initial_player = next(
+        (player for player in players if str(player.id) == value),
+        None,
+    )
+    selected_player = st.selectbox(
+        field.title or "Zawodnik",
+        index=players.index(initial_player) if initial_player else None,
+        options=players,
+        key=key,
+        help=field.description,
+        format_func=lambda player: player.fullname,
+    )
+    return str(selected_player.id) if selected_player else None
+
+
+payments_crud = CrudSpec(
+    model=Payment,
+    objects=payments,
+    save=payments_repo.save,
+    delete=payments_repo.delete,
+    format_func=lambda payment: payment.format(players),
+    add_values={
+        "datetime": datetime.datetime.now(tz=datetime.UTC).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        ),
+        "value": 0,
+    },
+    field_renderers={"player_id": render_payment_player},
+)
+
+
 with st.expander("Płatności", expanded=True):
     st.button("Odśwież")
     cols = st.columns(2)
@@ -41,86 +74,37 @@ with st.expander("Płatności", expanded=True):
     ]
     st.dataframe(payments_to_show)
 
-with st.form("add_payment_form"):
-    st.subheader("Dodaj płatność", text_alignment="center")
-    player = st.selectbox(
-        "Wybierz zawodnika",
-        index=None,
-        options=players,
-        format_func=lambda p: p.fullname,
-    )
-    date = st.date_input("Data", format="DD.MM.YYYY")
-    dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
-    value = st.number_input("Kwota (zł)", min_value=0, max_value=None)
-    submit = st.form_submit_button("Dodaj")
-    if submit and player:
-        payment = Payment(datetime=dt, player_id=str(player.id), value=value)
-        with execute_with_toast(f"Płatność '{payment.format(players)}' dodana!"):
-            payments_repo.save(payment)
-        st.rerun()
+new_payment = render_add_form(
+    payments_crud,
+    key="payment_add",
+    title="Dodaj płatność",
+)
+if new_payment:
+    with execute_with_toast(f"Płatność '{new_payment.format(players)}' dodana!"):
+        payments_repo.save(new_payment)
+    st.rerun()
 
 
-def update_edit_payment_form() -> None:
-    if "edit_payment" not in st.session_state:
-        return
-    if not st.session_state.edit_payment:
-        return
-    payment: Payment = st.session_state["edit_payment"]
-    st.session_state.edit_player = next(p for p in players if str(p.id) in payment.player_id)
-    st.session_state.edit_date = payment.datetime
-    st.session_state.edit_value = payment.value
+edited_payment = render_edit_form(
+    payments_crud,
+    key="payment_edit",
+    title="Edytuj płatność",
+    select_label="Wybierz płatność",
+)
+if edited_payment:
+    with execute_with_toast(f"Płatność '{edited_payment.format(players)}' zedytowana!"):
+        payments_repo.save(edited_payment)
+    st.rerun()
 
 
-with st.container(border=True):
-    st.subheader("Edytuj płatność", text_alignment="center")
-    payment_to_edit = st.selectbox(
-        "Wybierz płatność",
-        index=None,
-        format_func=lambda pay: pay.format(players),
-        key="edit_payment",
-        options=payments,
-        on_change=update_edit_payment_form,
-    )
-    if payment_to_edit:
-        player = st.selectbox(
-            "Wybierz zawodnika",
-            key="edit_player",
-            index=None,
-            options=players,
-            format_func=lambda p: p.fullname,
-        )
-        date = st.date_input("Data", key="edit_date", format="DD.MM.YYYY")
-        dt = datetime.datetime.combine(date, datetime.time(hour=12), tzinfo=datetime.UTC)
-        if player:
-            payment_to_edit.player_id = str(player.id)
-        payment_to_edit.datetime = dt
-        payment_to_edit.value = st.number_input(
-            "Kwota (zł)",
-            key="edit_value",
-            min_value=0,
-            max_value=None,
-        )
-        submit = st.button("Zapisz")
-        if submit:
-            with execute_with_toast(f"Płatność '{payment_to_edit.format(players)}' zedytowana!"):
-                payments_repo.save(payment_to_edit)
-            st.rerun()
-
-
-with st.container(border=True):
-    st.subheader("Usuń płatność", text_alignment="center")
-    payments_to_delete = st.multiselect(
-        "Wybierz płatność/płatności",
-        options=payments,
-        format_func=lambda pay: pay.format(players),
-        key="delete_payment",
-    )
-    if payments_to_delete:
-        submit = st.button("Usuń")
-        if submit:
-            for payment_to_delete in payments_to_delete:
-                with execute_with_toast(
-                    f"Płatność '{payment_to_delete.format(players)}' usunięta!"
-                ):
-                    payments_repo.delete(payment_to_delete)
-            st.rerun()
+deleted_payments = render_delete_form(
+    payments_crud,
+    key="payment_delete",
+    title="Usuń płatność",
+    select_label="Wybierz płatność/płatności",
+)
+if deleted_payments:
+    for payment_to_delete in deleted_payments:
+        with execute_with_toast(f"Płatność '{payment_to_delete.format(players)}' usunięta!"):
+            payments_repo.delete(payment_to_delete)
+    st.rerun()
