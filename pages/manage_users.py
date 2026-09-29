@@ -1,8 +1,10 @@
 import streamlit as st
+from pydantic import ValidationError
 
 from menu import menu_with_redirect
 from utils.db.users import User, UserRole, get_users_repo, user_column_config_mapping
 from utils.pages import ToastNotifications, execute_with_toast, set_page
+from utils.streamlit.pydantic import pydantic_input
 
 PAGE_NAME = "Zarządzanie użytkownikami"
 set_page(PAGE_NAME)
@@ -23,14 +25,14 @@ with st.expander("Użytkownicy", expanded=True):
 
 with st.form("add_user_form"):
     st.subheader("Dodaj użytkownika", text_alignment="center")
-    email = st.text_input("Email", max_chars=255).strip()
-    role = st.selectbox("Rola", UserRole.list_all())
+    user_data = pydantic_input(User, key="add_user")
     submit = st.form_submit_button("Dodaj")
     if submit:
-        if not email:
-            st.error("Email jest wymagany!")
+        try:
+            user = User(**user_data)
+        except ValidationError as error:
+            st.error(f"Nieprawidłowe dane użytkownika:\n\n {error}")
         else:
-            user = User(email=email, role=UserRole(role))
             with execute_with_toast(f"Użytkownik '{user.email}' dodany!"):
                 users_repo.save(user)
             st.rerun()
