@@ -76,7 +76,7 @@ def render_edit_form[ModelT: BaseModel](
         if not st.form_submit_button(submit_label):
             return None
 
-    data["id"] = getattr(selected, "id", None)
+    data.update({name: getattr(selected, name) for name in spec.exclude})
     return _validate_model(spec.model, data)
 
 
