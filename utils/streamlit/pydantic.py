@@ -114,6 +114,7 @@ def _render_field(name: str, key: str, field: FieldInfo, value: Any) -> Any:
         selected_date = st.date_input(
             label,
             value=initial.date() if initial else dt.datetime.now(tz=dt.UTC).date(),
+            format="DD.MM.YYYY",
             key=key,
             help=description,
         )
@@ -127,6 +128,7 @@ def _render_field(name: str, key: str, field: FieldInfo, value: Any) -> Any:
         return st.date_input(
             label,
             value=(value if isinstance(value, dt.date) else dt.datetime.now(tz=dt.UTC).date()),
+            format="DD.MM.YYYY",
             key=key,
             help=description,
         )
