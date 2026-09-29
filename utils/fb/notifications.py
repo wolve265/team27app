@@ -12,6 +12,8 @@ Hej, przypominam o wpłacie {amount} zł za zaległe gierki.
 
 Ta wiadomość jest automatyczna. Proszę na nią nie odpowiadać.
 W razie problemów skontaktuj się z programistą i/lub skarbnikiem Team27.
+
+⚽ STRONA: https://team27.streamlit.app/
 """
 
 api = Api()
