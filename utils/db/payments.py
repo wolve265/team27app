@@ -1,6 +1,6 @@
 import datetime as dt
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, Field, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_db
@@ -10,9 +10,9 @@ from utils.seasons import Season, Seasons
 
 class Payment(BaseModel):
     id: PydanticObjectId | None = None
-    datetime: dt.datetime
-    player_id: str
-    value: int
+    datetime: dt.datetime = Field(title="Data")
+    player_id: str = Field(title="Zawodnik")
+    value: int = Field(title="Kwota (zł)", ge=0)
 
     @computed_field(repr=False)
     @property

@@ -20,12 +20,22 @@ player_column_config_mapping = {
 
 class Player(BaseModel):
     id: PydanticObjectId | None = None
-    name: str
-    psid: str
-    surname: str
-    team27_number: int = Field(ge=0)
+    name: str = Field(title="Imię")
+    psid: str = Field(
+        title="PSID",
+        description="Zostaw puste, jeśli zawodnik nie jest połączony z systemem powiadomień.",
+    )
+    surname: str = Field(title="Nazwisko")
+    team27_number: int = Field(
+        ge=0,
+        title="Numer w Team 27",
+        description="Wpisz 0, jeśli zawodnik nie jest członkiem Team 27.",
+    )
     # user_email: EmailStr
-    user_email: str
+    user_email: str = Field(
+        title="Email użytkownika",
+        description="Zostaw puste, jeśli zawodnik nie jest połączony z użytkownikiem.",
+    )
 
     @computed_field(repr=False)
     @property

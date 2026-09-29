@@ -1,7 +1,7 @@
 import datetime as dt
 
 import streamlit as st
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, Field, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_db
@@ -21,10 +21,10 @@ game_column_config_mapping = {
 
 class Game(BaseModel):
     id: PydanticObjectId | None = None
-    cost: int
-    cost_per_player: int
-    datetime: dt.datetime
-    players_ids: list[str]
+    cost: int = Field(title="Koszt gierki (zł)", ge=0)
+    cost_per_player: int = Field(title="Koszt za gracza (zł)", ge=0)
+    datetime: dt.datetime = Field(title="Data")
+    players_ids: list[str] = Field(title="Zawodnicy")
 
     @computed_field(repr=False)
     @property
