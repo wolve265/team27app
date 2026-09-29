@@ -28,7 +28,7 @@ players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
 def _render_payment_player(_name, key, field, value):
-    # Map the stored player ID to a player option for the selectbox widget.
+    """Map the stored player ID to a player option for the selectbox widget."""
     initial_player = next(
         (player for player in players if str(player.id) == value),
         None,
