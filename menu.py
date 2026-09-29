@@ -7,6 +7,7 @@ social_media_links = [
     "https://www.facebook.com/groups/1501886206715210",
     "https://www.instagram.com/__team27__/",
 ]
+notifications_url = "https://www.facebook.com/share/1CoAyMar8S/"
 
 
 def menu() -> None:
@@ -25,7 +26,7 @@ def menu() -> None:
         # Main menu
         st.page_link("streamlit_app.py", label="Strona główna", icon=":material/home:")
 
-        # Indoor games 2025/2026
+        # Indoor games
         with st.expander("Hala", expanded=True, icon=":material/sports_soccer:"):
             st.page_link("pages/games_26_27.py", label="2026/2027")
             st.page_link("pages/games_25_26.py", label="2025/2026")
@@ -67,7 +68,13 @@ def menu() -> None:
 
         # Socials
         st.markdown("---")
-        SocialMediaIcons(social_media_links).render()
+        social_html = SocialMediaIcons(social_media_links)._get_html()
+        bell_link = (
+            f'<a href="{notifications_url}" target="_blank" style="margin-left: -4px;">'
+            '<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="#808080"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.1-1.6-5.6-4.5-6.3V4c0-.8-.7-1.5-1.5-1.5S10.5 3.2 10.5 4v.7C7.6 5.4 6 7.9 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></a>'
+        )
+        social_html = social_html.replace("</div>", f"{bell_link}</div>", 1)
+        st.markdown(social_html, unsafe_allow_html=True)
 
 
 default_roles = UserRole.list_all()
