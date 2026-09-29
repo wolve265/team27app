@@ -114,16 +114,13 @@ def _render_field(name: str, key: str, field: FieldInfo, value: Any) -> Any:
         selected_date = st.date_input(
             label,
             value=initial.date() if initial else dt.datetime.now(tz=dt.UTC).date(),
-            key=f"{key}_date",
+            key=key,
             help=description,
         )
-        selected_time = st.time_input(
-            f"{label} - godzina",
-            value=initial.time().replace(tzinfo=None) if initial else dt.time(),
-            key=f"{key}_time",
-        )
-        return dt.datetime.combine(selected_date, selected_time).replace(
-            tzinfo=initial.tzinfo if initial else None
+        return dt.datetime.combine(
+            selected_date,
+            dt.time(hour=12),
+            tzinfo=initial.tzinfo if initial and initial.tzinfo else dt.UTC,
         )
 
     if annotation is dt.date:
