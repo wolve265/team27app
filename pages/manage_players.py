@@ -26,7 +26,6 @@ players_crud = CrudSpec(
     objects=players,
     save=players_repo.save,
     delete=players_repo.delete,
-    format_func=lambda player: player.fullname,
 )
 
 

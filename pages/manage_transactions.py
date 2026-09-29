@@ -27,7 +27,6 @@ transactions_crud = CrudSpec(
     objects=transactions,
     save=transactions_repo.save,
     delete=transactions_repo.delete,
-    format_func=lambda transaction: transaction.name,
 )
 expenses = [t for t in transactions if t.is_expense()]
 revenues = [t for t in transactions if t.is_revenue()]

@@ -50,7 +50,6 @@ games_crud = CrudSpec(
     objects=games,
     save=games_repo.save,
     delete=games_repo.delete,
-    format_func=lambda game: game.date,
     add_values={
         "datetime": datetime.datetime.now(tz=datetime.UTC).replace(
             hour=12, minute=0, second=0, microsecond=0

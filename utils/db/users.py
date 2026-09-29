@@ -36,6 +36,9 @@ class User(BaseModel):
         description="Czy użytkownik jest superadminem (ma wszystkie uprawnienia)",
     )
 
+    def __str__(self) -> str:
+        return f"{self.email} ({self.role if not self.superadmin else 'superadmin'})"
+
 
 class UsersRepository(AbstractRepository[User]):
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]

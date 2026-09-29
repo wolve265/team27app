@@ -26,6 +26,9 @@ class Game(BaseModel):
     datetime: dt.datetime = Field(title="Data")
     players_ids: list[str] = Field(title="Zawodnicy")
 
+    def __str__(self) -> str:
+        return f"{self.date} | {self.players_count} graczy - {self.cost} zł"
+
     @computed_field(repr=False)
     @property
     def date(self) -> str:

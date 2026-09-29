@@ -21,7 +21,6 @@ users_crud = CrudSpec(
     objects=users,
     save=users_repo.save,
     delete=users_repo.delete,
-    format_func=lambda user: user.email,
     exclude=("id", "superadmin"),
     can_edit=lambda user: not user.superadmin,
     can_delete=lambda user: not user.superadmin,

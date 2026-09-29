@@ -12,6 +12,9 @@ class Transaction(BaseModel):
     name: str = Field(title="Nazwa transakcji")
     value: int = Field(title="Kwota (zł)")
 
+    def __str__(self) -> str:
+        return f"{self.date} | {self.name} - {self.value} zł"
+
     @computed_field(repr=False)
     @property
     def date(self) -> str:

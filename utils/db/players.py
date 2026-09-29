@@ -37,6 +37,9 @@ class Player(BaseModel):
         description="Zostaw puste, jeśli zawodnik nie jest połączony z użytkownikiem.",
     )
 
+    def __str__(self) -> str:
+        return self.fullname
+
     @computed_field(repr=False)
     @property
     def fullname(self) -> str:
