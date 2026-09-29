@@ -12,7 +12,7 @@ from utils.seasons import merge_seasons, st_seasons
 PAGE_NAME = "Zarządzanie płatnościami"
 set_page(PAGE_NAME)
 
-menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+menu_with_redirect(roles=[UserRole.ADMIN])
 ToastNotifications.render()
 
 season = merge_seasons(st_seasons())

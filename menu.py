@@ -32,7 +32,7 @@ def menu() -> None:
 
         # Admin menu
         db_user: User = st.session_state.db_user
-        if db_user.role in {UserRole.ADMIN, UserRole.SUPERADMIN}:
+        if db_user.role is UserRole.ADMIN:
             with st.expander("Admin menu", expanded=True, icon=":material/admin_panel_settings:"):
                 st.page_link(
                     "pages/manage_users.py",
@@ -70,7 +70,7 @@ def menu() -> None:
         SocialMediaIcons(social_media_links).render()
 
 
-default_roles = UserRole.list_all_with_superadmin()
+default_roles = UserRole.list_all()
 
 
 def menu_with_redirect(roles: list[UserRole] = default_roles) -> None:

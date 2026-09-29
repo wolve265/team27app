@@ -17,7 +17,7 @@ from utils.seasons import Seasons, merge_seasons, st_seasons
 PAGE_NAME = "Widok skarbnika"
 set_page(PAGE_NAME)
 
-menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+menu_with_redirect(roles=[UserRole.ADMIN])
 ToastNotifications.render()
 
 seasons = st_seasons()

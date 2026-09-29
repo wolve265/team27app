@@ -7,7 +7,7 @@ from utils.pages import ToastNotifications, execute_with_toast, set_page
 PAGE_NAME = "Zarządzanie użytkownikami"
 set_page(PAGE_NAME)
 
-menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+menu_with_redirect(roles=[UserRole.ADMIN])
 ToastNotifications.render()
 
 
@@ -56,9 +56,9 @@ with st.container(border=True):
         on_change=update_edit_user_form,
     )
     if user_to_edit:
-        is_superadmin = user_to_edit.role == UserRole.SUPERADMIN
+        is_superadmin = user_to_edit.superadmin
         if is_superadmin:
-            st.warning(f"Nie możesz edytować użytkownika o roli '{UserRole.SUPERADMIN}'!")
+            st.warning("Nie możesz edytować użytkownika o roli 'Superadmin'!")
         else:
             user_to_edit.role = st.selectbox(
                 "Rola",
@@ -84,9 +84,9 @@ with st.container(border=True):
         on_change=update_edit_user_form,
     )
     if user_to_delete:
-        is_superadmin = user_to_delete.role == UserRole.SUPERADMIN
+        is_superadmin = user_to_delete.superadmin
         if is_superadmin:
-            st.warning(f"Nie możesz usunąć użytkownika o roli '{UserRole.SUPERADMIN}'!")
+            st.warning("Nie możesz usunąć użytkownika o roli 'Superadmin'!")
         submit = st.button("Usuń", disabled=is_superadmin)
         if submit:
             with execute_with_toast(f"Użytkownik '{user_to_delete.email}' usunięty!"):

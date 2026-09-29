@@ -2,7 +2,7 @@ from enum import StrEnum
 from typing import Self
 
 import streamlit as st
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
 from utils.db.client import get_db
@@ -11,27 +11,30 @@ user_column_config_mapping = {
     "id": None,
     "email": "Email",
     "role": "Rola",
+    "superadmin": "Superadmin",
 }
 
 
 class UserRole(StrEnum):
     USER = "user"
     ADMIN = "admin"
-    SUPERADMIN = "superadmin"
 
     @classmethod
     def list_all(cls) -> list[Self]:
-        return [e for e in cls if e != cls.SUPERADMIN]
-
-    @classmethod
-    def list_all_with_superadmin(cls) -> list[Self]:
         return [e for e in cls]
 
 
 class User(BaseModel):
     id: PydanticObjectId | None = None
-    email: str
-    role: UserRole
+    email: EmailStr = Field(
+        title="Email", description="Email użytkownika, który będzie logował się do aplikacji"
+    )
+    role: UserRole = Field(title="Rola", description="Rola użytkownika w aplikacji")
+    superadmin: bool = Field(
+        default=False,
+        title="Superadmin",
+        description="Czy użytkownik jest superadminem (ma wszystkie uprawnienia)",
+    )
 
 
 class UsersRepository(AbstractRepository[User]):

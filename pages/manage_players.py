@@ -13,7 +13,7 @@ from utils.pages import ToastNotifications, execute_with_toast, set_page
 PAGE_NAME = "Zarządzanie zawodnikami"
 set_page(PAGE_NAME)
 
-menu_with_redirect(roles=[UserRole.ADMIN, UserRole.SUPERADMIN])
+menu_with_redirect(roles=[UserRole.ADMIN])
 ToastNotifications.render()
 
 
