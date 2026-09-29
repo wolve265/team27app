@@ -1,14 +1,24 @@
 import datetime as dt
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from enum import Enum
 from types import UnionType
-from typing import Any, Union, cast, get_args, get_origin
+from typing import Any, Protocol, Union, cast, get_args, get_origin
 
 import streamlit as st
 from pydantic import BaseModel, EmailStr
 from pydantic.fields import FieldInfo
 
-FieldRenderer = Callable[[str, str, FieldInfo, Any], Any]
+
+class FieldRenderer(Protocol):
+    """Render a custom widget and return the value expected by the model."""
+
+    def __call__(
+        self,
+        field_name: str,
+        widget_key: str,
+        field: FieldInfo,
+        value: Any,
+    ) -> Any: ...
 
 
 def pydantic_input(

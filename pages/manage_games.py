@@ -1,7 +1,9 @@
 import datetime
+from typing import Any
 
 import pandas as pd
 import streamlit as st
+from pydantic.fields import FieldInfo
 
 from menu import menu_with_redirect
 from utils.db.games import Game, game_column_config_mapping, get_games_repo
@@ -28,14 +30,16 @@ games = sorted(
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
-def _render_game_players(_name, key, field, value):
+def _render_game_players(
+    field_name: str, widget_key: str, field: FieldInfo, value: Any
+) -> list[Any]:
     """Map stored player IDs to player objects for the multiselect widget."""
     selected_players = [player for player in players if str(player.id) in (value or [])]
     return st.multiselect(
         field.title or "Zawodnicy",
         options=players,
         default=selected_players,
-        key=key,
+        key=widget_key,
         help=field.description,
         format_func=lambda player: player.fullname,
     )
