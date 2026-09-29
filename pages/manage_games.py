@@ -28,7 +28,8 @@ games = sorted(
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
-def render_game_players(_name, key, field, value):
+def _render_game_players(_name, key, field, value):
+    # Map stored player IDs to player objects for the multiselect widget.
     selected_players = [player for player in players if str(player.id) in (value or [])]
     return st.multiselect(
         field.title or "Zawodnicy",
@@ -53,7 +54,7 @@ games_crud = CrudSpec(
         "cost": 150,
         "cost_per_player": 15,
     },
-    field_renderers={"players_ids": render_game_players},
+    field_renderers={"players_ids": _render_game_players},
 )
 
 

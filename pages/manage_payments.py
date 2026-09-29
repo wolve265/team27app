@@ -27,7 +27,8 @@ payments = sorted(
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
-def render_payment_player(_name, key, field, value):
+def _render_payment_player(_name, key, field, value):
+    # Map the stored player ID to a player option for the selectbox widget.
     initial_player = next(
         (player for player in players if str(player.id) == value),
         None,
@@ -55,7 +56,7 @@ payments_crud = CrudSpec(
         ),
         "value": 0,
     },
-    field_renderers={"player_id": render_payment_player},
+    field_renderers={"player_id": _render_payment_player},
 )
 
 
