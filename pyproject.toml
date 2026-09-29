@@ -20,10 +20,15 @@ dev = [
     "pyproject-pre-commit>=0.6.1",
     "ruff>=0.16.7",
     "ty>=0.0.81",
+    "pytest>=9.1.1",
 ]
 
 [tool.ruff]
 line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
 
 [[tool.mypy.overrides]]
 module = [
