@@ -65,7 +65,7 @@ def st_seasons() -> list[Season]:
         key="selected_seasons",
         options=sorted(Seasons.list_all(), key=lambda s: s.end, reverse=True),
         selection_mode="multi",
-        default=Seasons.list_all(),
+        default=[Seasons.LAST],
         format_func=lambda s: s.name,
         persist_state="session",
     )
