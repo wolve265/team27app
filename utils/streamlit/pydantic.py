@@ -9,16 +9,16 @@ from pydantic import BaseModel, EmailStr
 from pydantic.fields import FieldInfo
 
 
-class FieldRenderer(Protocol):
-    """Render a custom widget and return the value expected by the model."""
+class FieldRenderer[InputT, OutputT](Protocol):
+    """Render a custom widget from a field value into the model's value type."""
 
     def __call__(
         self,
         field_name: str,
         widget_key: str,
         field: FieldInfo,
-        value: Any,
-    ) -> Any: ...
+        value: InputT,
+    ) -> OutputT: ...
 
 
 def pydantic_input(
@@ -26,7 +26,7 @@ def pydantic_input(
     key: str,
     *,
     values: Mapping[str, Any] | None = None,
-    field_renderers: Mapping[str, FieldRenderer] | None = None,
+    field_renderers: Mapping[str, FieldRenderer[Any, Any]] | None = None,
     exclude: Sequence[str] = ("id",),
 ) -> dict[str, Any]:
     """Render basic Streamlit inputs from a Pydantic model's fields.

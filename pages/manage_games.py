@@ -1,5 +1,4 @@
 import datetime
-from typing import Any
 
 import pandas as pd
 import streamlit as st
@@ -31,11 +30,11 @@ players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
 def _render_game_players(
-    field_name: str, widget_key: str, field: FieldInfo, value: Any
-) -> list[Any]:
+    field_name: str, widget_key: str, field: FieldInfo, value: list[str] | None
+) -> list[str]:
     """Map stored player IDs to player objects for the multiselect widget."""
     selected_players = [player for player in players if str(player.id) in (value or [])]
-    return st.multiselect(
+    selected_players = st.multiselect(
         field.title or "Zawodnicy",
         options=players,
         default=selected_players,
@@ -43,6 +42,7 @@ def _render_game_players(
         help=field.description,
         format_func=lambda player: player.fullname,
     )
+    return [str(player.id) for player in selected_players]
 
 
 games_crud = CrudSpec(

@@ -16,7 +16,7 @@ class CrudSpec[ModelT: BaseModel]:
     delete: Callable[[ModelT], Any]
     format_func: Callable[[ModelT], str] = str
     add_values: Mapping[str, Any] | None = None
-    field_renderers: Mapping[str, FieldRenderer] | None = None
+    field_renderers: Mapping[str, FieldRenderer[Any, Any]] | None = None
     exclude: Sequence[str] = ("id",)
     can_edit: Callable[[ModelT], bool] = lambda _obj: True
     can_delete: Callable[[ModelT], bool] = lambda _obj: True

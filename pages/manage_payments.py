@@ -1,5 +1,4 @@
 import datetime
-from typing import Any
 
 import streamlit as st
 from pydantic.fields import FieldInfo
@@ -30,7 +29,7 @@ players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 
 
 def _render_payment_player(
-    field_name: str, widget_key: str, field: FieldInfo, value: Any
+    field_name: str, widget_key: str, field: FieldInfo, value: str | None
 ) -> str | None:
     """Map the stored player ID to a player option for the selectbox widget."""
     initial_player = next(
