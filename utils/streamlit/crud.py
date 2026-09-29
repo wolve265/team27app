@@ -68,7 +68,7 @@ def render_edit_form[ModelT: BaseModel](
             st.warning("Nie możesz edytować tego elementu.")
             return None
 
-        with st.form(f"{key}_form"):
+        with st.form(f"{key}_form", border=False):
             data = pydantic_input(
                 spec.model,
                 key=f"{key}_fields",
