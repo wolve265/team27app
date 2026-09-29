@@ -52,31 +52,32 @@ def render_edit_form[ModelT: BaseModel](
     submit_label: str = "Zapisz",
 ) -> ModelT | None:
     objects = list(spec.objects)
-    selected = st.selectbox(
-        select_label,
-        index=None,
-        options=objects,
-        format_func=spec.format_func,
-        key=f"{key}_selected",
-        on_change=lambda: _sync_selected_model(spec, key),
-    )
-    if selected is None:
-        return None
-    if not spec.can_edit(selected):
-        st.warning("Nie możesz edytować tego elementu.")
-        return None
-
-    with st.form(f"{key}_form"):
+    with st.container(border=True):
         st.subheader(title, text_alignment="center")
-        data = pydantic_input(
-            spec.model,
-            key=f"{key}_fields",
-            values=selected.model_dump(),
-            field_renderers=spec.field_renderers,
-            exclude=spec.exclude,
+        selected = st.selectbox(
+            select_label,
+            index=None,
+            options=objects,
+            format_func=spec.format_func,
+            key=f"{key}_selected",
+            on_change=lambda: _sync_selected_model(spec, key),
         )
-        if not st.form_submit_button(submit_label):
+        if selected is None:
             return None
+        if not spec.can_edit(selected):
+            st.warning("Nie możesz edytować tego elementu.")
+            return None
+
+        with st.form(f"{key}_form"):
+            data = pydantic_input(
+                spec.model,
+                key=f"{key}_fields",
+                values=selected.model_dump(),
+                field_renderers=spec.field_renderers,
+                exclude=spec.exclude,
+            )
+            if not st.form_submit_button(submit_label):
+                return None
 
     data.update({name: getattr(selected, name) for name in spec.exclude})
     return _validate_model(spec.model, data)
