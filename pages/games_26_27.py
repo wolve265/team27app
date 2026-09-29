@@ -88,7 +88,7 @@ with players_tab:
             "Suma wpłat": f"{pi.payments_sum} zł",
             "Koszt gierek": f"{pi.games_cost} zł",
             "Bilans": f"{pi.balance} zł",
-            "Gry opłacone z góry": pi.balance // avg_game_cost,
+            "Gry opłacone z góry": round(pi.balance / avg_game_cost) if avg_game_cost else 0,
         }
         for p, pi in zip(players, players_infos)
     ]

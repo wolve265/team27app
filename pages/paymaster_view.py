@@ -34,7 +34,6 @@ games = sorted(
 )
 players = sorted(players_repo.find_by({}), key=lambda p: p.surname)
 payments = list(payments_repo.find_by(season.get_datetime_query()))
-
 avg_game_cost = round(sum([g.cost_per_player for g in games]) / len(games)) if len(games) else 1
 players_infos = [PlayerInfo.from_player(p, games, payments) for p in players]
 
@@ -67,7 +66,7 @@ with payments_tab:
             "Suma wpłat": f"{pi.payments_sum} zł",
             "Koszt gierek": f"{pi.games_cost} zł",
             "Bilans": f"{pi.balance} zł",
-            "Gry opłacone z góry": pi.balance // avg_game_cost,
+            "Gry opłacone z góry": round(pi.balance / avg_game_cost) if avg_game_cost else 0,
         }
         for p, pi in zip(players, players_infos)
     ]
