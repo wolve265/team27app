@@ -2,9 +2,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from utils.db.users import User, UserRole
-from utils.streamlit import crud, pydantic
-from utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form
+from team27app.utils.db.users import User, UserRole
+from team27app.utils.streamlit import crud, pydantic
+from team27app.utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form
 
 
 class FormContext:

@@ -1,7 +1,7 @@
 import streamlit as st
 
-from menu import menu_with_redirect
-from utils.pages import set_page
+from team27app.menu import menu_with_redirect
+from team27app.utils.pages import set_page
 
 PAGE_NAME = "Zaloguj się"
 set_page(PAGE_NAME)

@@ -4,13 +4,18 @@ import pandas as pd
 import streamlit as st
 from pydantic.fields import FieldInfo
 
-from menu import menu_with_redirect
-from utils.db.games import Game, game_column_config_mapping, get_games_repo
-from utils.db.players import get_players_repo
-from utils.db.users import UserRole
-from utils.pages import ToastNotifications, execute_with_toast, set_page
-from utils.seasons import merge_seasons, st_seasons
-from utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form, render_edit_form
+from team27app.menu import menu_with_redirect
+from team27app.utils.db.games import Game, game_column_config_mapping, get_games_repo
+from team27app.utils.db.players import get_players_repo
+from team27app.utils.db.users import UserRole
+from team27app.utils.pages import ToastNotifications, execute_with_toast, set_page
+from team27app.utils.seasons import merge_seasons, st_seasons
+from team27app.utils.streamlit.crud import (
+    CrudSpec,
+    render_add_form,
+    render_delete_form,
+    render_edit_form,
+)
 
 PAGE_NAME = "Zarządzanie gierkami"
 set_page(PAGE_NAME)

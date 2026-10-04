@@ -15,6 +15,14 @@ dependencies = [
     "streamlit>=1.63.0",
 ]
 
+[build-system]
+requires = ["uv_build>=0.12.15,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "team27app"
+module-root = "src"
+
 [dependency-groups]
 dev = [
     "pyproject-pre-commit>=0.6.1",
@@ -27,7 +35,7 @@ dev = [
 line-length = 100
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = ["src"]
 testpaths = ["tests"]
 
 [[tool.mypy.overrides]]

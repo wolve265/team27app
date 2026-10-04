@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Self
 
-from utils.db.games import Game, get_player_games, get_player_games_cost
-from utils.db.payments import Payment, get_player_payments_sum
-from utils.db.players import Player
+from team27app.utils.db.games import Game, get_player_games, get_player_games_cost
+from team27app.utils.db.payments import Payment, get_player_payments_sum
+from team27app.utils.db.players import Player
 
 
 @dataclass

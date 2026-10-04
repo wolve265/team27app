@@ -4,9 +4,9 @@ import streamlit as st
 from pydantic import BaseModel, Field, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
-from utils.db.client import get_db
-from utils.db.players import Player
-from utils.seasons import Season, Seasons
+from team27app.utils.db.client import get_db
+from team27app.utils.db.players import Player
+from team27app.utils.seasons import Season, Seasons
 
 game_column_config_mapping = {
     "id": None,

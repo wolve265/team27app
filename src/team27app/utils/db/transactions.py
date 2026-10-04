@@ -3,7 +3,7 @@ import datetime as dt
 from pydantic import BaseModel, Field, computed_field
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 
-from utils.db.client import get_db
+from team27app.utils.db.client import get_db
 
 
 class Transaction(BaseModel):

@@ -1,15 +1,20 @@
 import pandas as pd
 import streamlit as st
 
-from menu import menu_with_redirect
-from utils.db.players import (
+from team27app.menu import menu_with_redirect
+from team27app.utils.db.players import (
     Player,
     get_players_repo,
     player_column_config_mapping,
 )
-from utils.db.users import UserRole
-from utils.pages import ToastNotifications, execute_with_toast, set_page
-from utils.streamlit.crud import CrudSpec, render_add_form, render_delete_form, render_edit_form
+from team27app.utils.db.users import UserRole
+from team27app.utils.pages import ToastNotifications, execute_with_toast, set_page
+from team27app.utils.streamlit.crud import (
+    CrudSpec,
+    render_add_form,
+    render_delete_form,
+    render_edit_form,
+)
 
 PAGE_NAME = "Zarządzanie zawodnikami"
 set_page(PAGE_NAME)

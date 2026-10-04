@@ -5,7 +5,7 @@ from typing import Any
 import streamlit as st
 from pydantic import BaseModel, ValidationError
 
-from utils.streamlit.pydantic import FieldRenderer, pydantic_input
+from team27app.utils.streamlit.pydantic import FieldRenderer, pydantic_input
 
 
 @dataclass(frozen=True)

@@ -1,12 +1,12 @@
 import streamlit as st
 
-from menu import menu_with_redirect
-from utils.db.games import get_games_repo
-from utils.db.payments import get_payments_repo
-from utils.db.players import get_players_repo
-from utils.pages import set_page
-from utils.player_info import PlayerInfo
-from utils.seasons import Seasons
+from team27app.menu import menu_with_redirect
+from team27app.utils.db.games import get_games_repo
+from team27app.utils.db.payments import get_payments_repo
+from team27app.utils.db.players import get_players_repo
+from team27app.utils.pages import set_page
+from team27app.utils.player_info import PlayerInfo
+from team27app.utils.seasons import Seasons
 
 SEASON = Seasons.INDOOR_25_26
 PAGE_NAME = SEASON.name

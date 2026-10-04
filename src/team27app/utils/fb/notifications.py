@@ -1,7 +1,7 @@
 import streamlit as st
 
-from utils.db.players import Player, is_player_linked_to_messenger
-from utils.fb.api import Api
+from team27app.utils.db.players import Player, is_player_linked_to_messenger
+from team27app.utils.fb.api import Api
 
 PHONE_NUMBER = st.secrets["contact"].get("paymaster")
 
