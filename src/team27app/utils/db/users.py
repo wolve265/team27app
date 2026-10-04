@@ -65,6 +65,6 @@ def get_db_user() -> User:
     if st.user.is_logged_in:
         db_user = _get_logged_user(str(st.user.email))
 
-    db_user = db_user if db_user else User(email="", role=UserRole.USER)
+    db_user = db_user if db_user else User(email="user@example.com", role=UserRole.USER)
     st.session_state.db_user = db_user
     return db_user
