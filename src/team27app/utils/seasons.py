@@ -10,6 +10,8 @@ class Season:
     name: str
     start: dt.datetime
     end: dt.datetime
+    game_cost: int
+    game_cost_per_player: int
 
     def get_datetime_query(self) -> dict[str, dict[str, dt.datetime]]:
         return {"datetime": {"$gte": self.start, "$lte": self.end}}
@@ -20,7 +22,13 @@ class Season:
         return self.name == other.name
 
 
-def _create_season(year_start: int, year_end: int, name: str | None = None) -> Season:
+def _create_season(
+    year_start: int,
+    year_end: int,
+    game_cost: int = -1,
+    game_cost_per_player: int = -1,
+    name: str | None = None,
+) -> Season:
     return Season(
         name=name or f"Hala {year_start}/{year_end}",
         start=dt.datetime(
@@ -29,12 +37,18 @@ def _create_season(year_start: int, year_end: int, name: str | None = None) -> S
         end=dt.datetime(
             year=year_end, month=8, day=31, hour=23, minute=59, second=59, tzinfo=dt.UTC
         ),
+        game_cost=game_cost,
+        game_cost_per_player=game_cost_per_player,
     )
 
 
 class Seasons:
-    INDOOR_25_26 = _create_season(2025, 2026)
-    INDOOR_26_27 = _create_season(2026, 2027)
+    INDOOR_25_26 = _create_season(
+        year_start=2025, year_end=2026, game_cost=150, game_cost_per_player=15
+    )
+    INDOOR_26_27 = _create_season(
+        year_start=2026, year_end=2027, game_cost=150, game_cost_per_player=15
+    )
     FIRST = INDOOR_25_26
     LAST = INDOOR_26_27
 
@@ -56,7 +70,15 @@ def merge_seasons(seasons: Sequence[Season]) -> Season:
     start = min(s.start for s in seasons)
     end = max(s.end for s in seasons)
     name = f"Hala {start.year}/{end.year}"
-    return Season(name=name, start=start, end=end)
+    game_cost = sum(s.game_cost for s in seasons) // len(seasons)
+    game_cost_per_player = sum(s.game_cost_per_player for s in seasons) // len(seasons)
+    return Season(
+        name=name,
+        start=start,
+        end=end,
+        game_cost=game_cost,
+        game_cost_per_player=game_cost_per_player,
+    )
 
 
 def st_seasons() -> list[Season]:

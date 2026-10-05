@@ -40,7 +40,7 @@ with games_tab:
         players_infos_in_game = [
             PlayerInfo.from_player(p, games_since_this_one, payments) for p in players_in_game
         ]
-        game_paid = all(pi.game_paid for pi in players_infos_in_game)
+        game_paid = all(pi.game_paid for pi in players_infos_in_game) or game.cost_per_player == 0
         with st.expander(
             f"{game.date} ({':green[opłacona]' if game_paid else ':red[nieopłacona]'})",
             expanded=expanded,
@@ -63,7 +63,6 @@ with games_tab:
 
 
 with players_tab:
-    avg_game_cost = round(sum([g.cost_per_player for g in games]) / len(games)) if len(games) else 0
     all_players_payments_expected = sum([g.cost_per_player * g.players_count for g in games])
     all_players_payments_current = sum([pay.value for pay in payments])
     all_balance = all_players_payments_current - all_players_payments_expected
@@ -87,7 +86,7 @@ with players_tab:
             "Suma wpłat": f"{pi.payments_sum} zł",
             "Koszt gierek": f"{pi.games_cost} zł",
             "Bilans": f"{pi.balance} zł",
-            "Gry opłacone z góry": round(pi.balance / avg_game_cost) if avg_game_cost else 0,
+            "Gry opłacone z góry": round(pi.balance / SEASON.game_cost_per_player),
         }
         for p, pi in zip(players, players_infos)
     ]
