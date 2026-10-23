@@ -28,7 +28,7 @@ class Transaction(BaseModel):
 
 
 class TransactionsRepository(AbstractRepository[Transaction]):
-    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride] # ty: ignore[invalid-attribute-override]
         collection_name = "transactions"
 
 

@@ -30,7 +30,7 @@ class Payment(BaseModel):
 
 
 class PaymentsRepository(AbstractRepository[Payment]):
-    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride] # ty: ignore[invalid-attribute-override]
         collection_name = "payments"
 
 

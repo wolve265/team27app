@@ -47,7 +47,7 @@ class Player(BaseModel):
 
 
 class PlayersRepository(AbstractRepository[Player]):
-    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride] # ty: ignore[invalid-attribute-override]
         collection_name = "players"
 
 
