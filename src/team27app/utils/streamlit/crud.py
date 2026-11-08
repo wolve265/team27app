@@ -60,7 +60,7 @@ def render_edit_form[ModelT: BaseModel](
             options=objects,
             format_func=spec.format_func,
             key=f"{key}_selected",
-            on_change=lambda: _sync_selected_model(spec, key),
+            on_change=lambda: _refresh_edit_form(key),
         )
         if selected is None:
             return None
@@ -69,9 +69,10 @@ def render_edit_form[ModelT: BaseModel](
             return None
 
         with st.form(f"{key}_form", border=False):
+            form_revision = st.session_state.get(f"{key}_revision", 0)
             data = pydantic_input(
                 spec.model,
-                key=f"{key}_fields",
+                key=f"{key}_fields_{form_revision}",
                 values=selected.model_dump(),
                 field_renderers=spec.field_renderers,
                 exclude=spec.exclude,
@@ -105,15 +106,9 @@ def render_delete_form[ModelT: BaseModel](
     return None
 
 
-def _sync_selected_model[ModelT: BaseModel](spec: CrudSpec[ModelT], key: str) -> None:
-    selected = st.session_state.get(f"{key}_selected")
-    if selected is None:
-        return
-
-    for field_name in spec.model.model_fields:
-        if field_name in spec.exclude:
-            continue
-        st.session_state[f"{key}_fields_{field_name}"] = getattr(selected, field_name)
+def _refresh_edit_form(key: str) -> None:
+    revision_key = f"{key}_revision"
+    st.session_state[revision_key] = st.session_state.get(revision_key, 0) + 1
 
 
 def _validate_model[ModelT: BaseModel](
