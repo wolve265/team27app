@@ -47,7 +47,7 @@ class Seasons:
         year_start=2025, year_end=2026, game_cost=150, game_cost_per_player=15
     )
     INDOOR_26_27 = _create_season(
-        year_start=2026, year_end=2027, game_cost=150, game_cost_per_player=15
+        year_start=2026, year_end=2027, game_cost=225, game_cost_per_player=15
     )
     FIRST = INDOOR_25_26
     LAST = INDOOR_26_27
